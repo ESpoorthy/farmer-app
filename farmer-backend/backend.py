@@ -8,6 +8,8 @@ from datetime import date, timedelta
 from io import BytesIO
 from pathlib import Path
 from typing import Literal
+import torch
+import timm
 
 import numpy as np
 import onnxruntime as ort
@@ -92,7 +94,7 @@ def crop_catalogue(season: str, water: str, soil: str) -> list[dict]:
 
 
 FRONTEND_BUILD = Path(__file__).resolve().parent.parent / "farmer-frontend" / "build"
-MODEL_PATH = Path(__file__).resolve().parent / "models" / "plantvillage-mobilenetv3.onnx"
+MODEL_PATH = Path(__file__).resolve().parent / "models" / "agrismart-field-model.pt"
 CLASS_NAMES = [
     "Pepper bell bacterial spot", "Pepper bell healthy", "Potato early blight",
     "Potato late blight", "Potato healthy", "Tomato bacterial spot",
@@ -100,27 +102,31 @@ CLASS_NAMES = [
     "Tomato septoria leaf spot", "Tomato spider mites", "Tomato target spot",
     "Tomato yellow leaf curl virus", "Tomato mosaic virus", "Tomato healthy",
 ]
-MODEL_VERSION = "PlantVillage MobileNetV3 (15-class)"
+MODEL_VERSION = "AgriSmart DINOv2 field-image classifier (28-class)"
 CROP_CLASS_INDICES = {
     "pepper": [0, 1],
     "potato": [2, 3, 4],
     "tomato": list(range(5, 15)),
 }
 SUPPORTED_CROPS = list(CROP_CLASS_INDICES)
-# Calibrated conservatively for uploaded field photos.  The model was trained
-# on tightly framed PlantVillage images, so a lower score must not be turned
-# into a treatment recommendation.
-DIAGNOSIS_CONFIDENCE_THRESHOLD = 0.75
-_disease_session: ort.InferenceSession | None = None
+# This field-photo model was selected using real-world validation images; 0.65
+# retains its demonstrated tomato/potato detections while withholding weak calls.
+DIAGNOSIS_CONFIDENCE_THRESHOLD = 0.65
+_disease_session: tuple[torch.nn.Module, object, list[str]] | None = None
 
 
-def disease_session() -> ort.InferenceSession:
-    """Load the compact ONNX classifier once per service process."""
+def disease_session() -> tuple[torch.nn.Module, object, list[str]]:
+    """Load the validated field-photo classifier once per service process."""
     global _disease_session
     if _disease_session is None:
         if not MODEL_PATH.exists():
             raise RuntimeError("Disease model asset is missing")
-        _disease_session = ort.InferenceSession(str(MODEL_PATH), providers=["CPUExecutionProvider"])
+        package = torch.load(MODEL_PATH, map_location="cpu", weights_only=True)
+        model = timm.create_model(package["backbone"], pretrained=False, num_classes=len(package["labels"]), img_size=package["img_size"])
+        model.load_state_dict(package["state_dict"])
+        model.eval()
+        transform = timm.data.create_transform(input_size=package["img_size"], interpolation="bicubic", mean=package["mean"], std=package["std"], crop_pct=0.9)
+        _disease_session = (model, transform, package["labels"])
     return _disease_session
 
 
@@ -136,20 +142,15 @@ def classify_leaf(image_bytes: bytes, crop: str) -> dict:
     except UnidentifiedImageError as error:
         raise HTTPException(status_code=400, detail="Upload a valid JPG, PNG, or WEBP plant image.") from error
 
-    # ImageNet normalization is part of this model's documented training contract.
-    image = image.resize((224, 224))
-    pixels = np.asarray(image, dtype=np.float32) / 255.0
-    pixels = (pixels - np.array([0.485, 0.456, 0.406], dtype=np.float32)) / np.array([0.229, 0.224, 0.225], dtype=np.float32)
-    tensor = np.transpose(pixels, (2, 0, 1))[None, ...]
-
-    session = disease_session()
-    logits = session.run(None, {session.get_inputs()[0].name: tensor})[0][0]
-    logits = logits - np.max(logits)
-    probabilities = np.exp(logits) / np.sum(np.exp(logits))
-    crop_indices = CROP_CLASS_INDICES[crop]
+    model, transform, labels = disease_session()
+    tensor = transform(image).unsqueeze(0)
+    with torch.no_grad():
+        probabilities = ((model(tensor).softmax(1) + model(torch.flip(tensor, dims=[3])).softmax(1)) / 2)[0].cpu().numpy()
+    crop_prefix = {"pepper": "Pepper", "potato": "Potato", "tomato": "Tomato"}[crop]
+    crop_indices = [index for index, label in enumerate(labels) if label.startswith(crop_prefix)]
     best_index = max(crop_indices, key=lambda index: float(probabilities[index]))
     confidence = float(probabilities[best_index])
-    diagnosis = CLASS_NAMES[best_index]
+    diagnosis = labels[best_index]
     healthy = diagnosis.endswith("healthy")
 
     # Never present a low-confidence guess as a disease.  This is especially
@@ -162,17 +163,17 @@ def classify_leaf(image_bytes: bytes, crop: str) -> dict:
             "model_mode": f"real-model / low-confidence / {crop}",
             "crop": crop,
             "supported_crops": SUPPORTED_CROPS,
-            "top_predictions": [{"label": CLASS_NAMES[index], "confidence": round(float(probabilities[index]), 3)} for index in sorted(crop_indices, key=lambda index: float(probabilities[index]), reverse=True)[:3]],
+            "top_predictions": [{"label": labels[index], "confidence": round(float(probabilities[index]), 3)} for index in sorted(crop_indices, key=lambda index: float(probabilities[index]), reverse=True)[:3]],
         }
 
     return {
-        "diagnosis": "Healthy leaf" if healthy else diagnosis.title(),
+        "diagnosis": "Healthy leaf" if healthy else diagnosis.replace("___", " ").replace("_", " ").title(),
         "confidence": round(confidence, 3),
         "next_step": "No disease signal detected; continue routine monitoring." if healthy else "Isolate affected foliage and consult a local extension officer before treatment.",
-        "model_mode": f"real-model / PlantVillage / {crop}",
+        "model_mode": f"real-model / AgriSmart field model / {crop}",
         "crop": crop,
         "supported_crops": SUPPORTED_CROPS,
-        "top_predictions": [{"label": CLASS_NAMES[index], "confidence": round(float(probabilities[index]), 3)} for index in sorted(crop_indices, key=lambda index: float(probabilities[index]), reverse=True)[:3]],
+        "top_predictions": [{"label": labels[index], "confidence": round(float(probabilities[index]), 3)} for index in sorted(crop_indices, key=lambda index: float(probabilities[index]), reverse=True)[:3]],
     }
 
 

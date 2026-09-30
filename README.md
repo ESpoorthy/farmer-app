@@ -11,13 +11,11 @@
 
 ## 🚀 Live Prototype
 
-[Open AgriN Connect](LIVE_PROTOTYPE_URL)
-
-> The URL above will be replaced with the verified public deployment during final release.
+[Open AgriN Connect](https://agrin-connect.onrender.com)
 
 ## 🔗 Project Links
 
-**Live Prototype:** LIVE_PROTOTYPE_URL  
+**Live Prototype:** https://agrin-connect.onrender.com<br>
 **GitHub Repository:** https://github.com/ESpoorthy/farmer-app
 
 ## Overview
@@ -170,7 +168,7 @@ Inspired by the AgriN / BRICS cooperation theme, the prototype demonstrates how 
 | Backend | Python, FastAPI, Pydantic, Uvicorn |
 | Farm intelligence | Deterministic rules and provider-compatible advisory contracts |
 | Data / signals | Demo soil, satellite-compatible NDVI, and forecast-compatible weather payloads |
-| Deployment | Public HTTPS deployment in progress |
+| Deployment | Render web service — [live prototype](https://agrin-connect.onrender.com) |
 
 ## Run Locally
 

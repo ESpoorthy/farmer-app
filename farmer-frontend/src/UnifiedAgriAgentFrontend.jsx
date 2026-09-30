@@ -1,5 +1,7 @@
 import React, { useState, useCallback } from "react";
 
+const API_BASE = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+
 /* ─────────────────────────────────────────────
    Helper: get time-of-day greeting
 ──────────────────────────────────────────────*/
@@ -113,6 +115,13 @@ function DashboardSection({ location, recommendation, detectionResult, calendar,
 
   const quickActions = [
     {
+      id: "intelligence",
+      color: "blue",
+      icon: "🛰️",
+      title: "Field Intelligence",
+      desc: "Combine soil, weather and satellite signals into practical actions",
+    },
+    {
       id: "crop",
       color: "green",
       icon: "🌾",
@@ -195,10 +204,10 @@ function DashboardSection({ location, recommendation, detectionResult, calendar,
               {getGreeting()}, Farmer 👋
             </p>
             <h2 style={{ fontSize: "var(--font-2xl)", fontWeight: 700, letterSpacing: "-0.02em", marginBottom: "var(--space-2)" }}>
-              Welcome to AgroSense
+              Welcome to AgriN Connect
             </h2>
             <p style={{ fontSize: "var(--font-sm)", opacity: 0.85, maxWidth: 460 }}>
-              Your AI-powered agricultural advisory platform. Get crop recommendations, detect plant diseases, check market prices, and manage your farm calendar — all in one place.
+              Regenerative, explainable farm intelligence for smallholders — built for cooperation across BRICS nations.
             </p>
           </div>
           <div style={{ fontSize: "4rem", filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.2))" }}>🌿</div>
@@ -400,12 +409,13 @@ function CropSection({
                     </div>
                     <div className="result-card-body">
                       <div className="result-card-title">{r.crop}</div>
-                      <div className="result-card-sub">Recommended for your soil, season & water conditions</div>
+                      <div className="result-card-sub">{r.rationale || "Recommended for your soil, season & water conditions"}</div>
                       <div className="result-card-meta">
                         <span className={`badge ${scoreClass(r.score)}`}>
                           Score: {r.score}/10
                         </span>
                         {i === 0 && <span className="badge badge-green">⭐ Best Match</span>}
+                        {r.regenerative_fit && <span className="badge badge-green">🌱 {r.regenerative_fit} regenerative fit</span>}
                       </div>
                     </div>
                     <div>
@@ -929,6 +939,70 @@ function CalendarSection({ calendar, loadingCalendar, fetchCalendar }) {
 }
 
 /* ─────────────────────────────────────────────
+   SECTION 6: Field Intelligence & Cooperation
+──────────────────────────────────────────────*/
+function FieldIntelligenceSection({ location, soilType, water, intelligence, loading, loadIntelligence }) {
+  const payload = intelligence;
+  const inputReady = soilType && water;
+  return (
+    <div className="animate-fadeInUp">
+      <div className="section-header">
+        <h1 className="section-title">
+          <span className="section-title-icon" style={{ background: "var(--clr-blue-light)" }}>🛰️</span>
+          Field Intelligence
+        </h1>
+        <p className="section-description">
+          An explainable advisory layer that joins farm observations with satellite-compatible vegetation signals, soil health and forecast data.
+        </p>
+      </div>
+
+      <div className="intelligence-hero card">
+        <div>
+          <span className="eyebrow">AGRIN CONNECT • ADVISORY V1</span>
+          <h2>Turn shared data into locally useful, regenerative action.</h2>
+          <p>Signals are demo data in this prototype, but the contract is ready for national providers and consented cross-border model exchange.</p>
+        </div>
+        <button className="btn btn-primary btn-lg" onClick={loadIntelligence} disabled={loading || !inputReady}>
+          {loading ? <><Spinner /> Reading signals…</> : "✨ Generate field brief"}
+        </button>
+      </div>
+      {!inputReady && <div className="alert alert-info" style={{ marginBottom: "var(--space-5)" }}>💡 Set soil type and water availability in <strong>Crops</strong> before generating a field brief.</div>}
+
+      {loading ? (
+        <div className="signal-grid"><SkeletonCard height={170} /><SkeletonCard height={170} /><SkeletonCard height={170} /></div>
+      ) : payload ? (
+        <div className="animate-fadeIn">
+          <div className="signal-grid">
+            <article className="signal-card satellite"><span>🛰️</span><p>Vegetation health</p><strong>NDVI {payload.satellite.ndvi}</strong><small>{payload.satellite.trend} · {payload.satellite.source}</small></article>
+            <article className="signal-card soil"><span>🪨</span><p>Soil health</p><strong>pH {payload.soil.ph} · {payload.soil.moisture_percent}%</strong><small>{payload.soil.organic_carbon_percent}% organic carbon · {payload.soil.texture}</small></article>
+            <article className="signal-card weather"><span>🌦️</span><p>7-day outlook</p><strong>{payload.weather.rainfall_next_7_days_mm} mm rain · {payload.weather.max_temperature_c}°C</strong><small>Water risk: {payload.weather.risk} · forecast-compatible</small></article>
+          </div>
+
+          <div className="advisory-grid">
+            <div className="card advisory-card">
+              <span className="eyebrow">EXPLAINABLE ADVISORY · {Math.round(payload.advisory.confidence * 100)}% CONFIDENCE</span>
+              <h2>{payload.advisory.headline}</h2>
+              <div className="action-list">
+                {payload.advisory.actions.map((item) => <div className="action-item" key={item.action}><span>🌱</span><div><strong>{item.action}</strong><p>{item.why}</p><small>{item.impact}</small></div></div>)}
+              </div>
+            </div>
+            <div className="card cooperation-card">
+              <span className="eyebrow">BRICS COOPERATION BY DESIGN</span>
+              <h3>Portable, consent-led data exchange</h3>
+              <p>Farm location stays local. Partners can share only consented, aggregated indicators and reusable advisory models.</p>
+              <div className="cooperation-tags"><span>Farmer consent</span><span>Local sovereignty</span><span>Open contract</span><span>Model provenance</span></div>
+              <small>Standard: {payload.provenance.standard}</small>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="card"><EmptyState icon="🛰️" title="Your field brief is ready to generate" desc="Use the farm conditions already entered in the crop advisor to create an explainable regenerative advisory." action={loadIntelligence} actionLabel="Generate field brief" /></div>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
    MAIN APP COMPONENT
 ──────────────────────────────────────────────*/
 export default function UnifiedAgriAgentFrontend() {
@@ -950,6 +1024,8 @@ export default function UnifiedAgriAgentFrontend() {
 
   const [calendar, setCalendar]           = useState(null);
   const [loadingCalendar, setLoadingCalendar] = useState(false);
+  const [intelligence, setIntelligence]   = useState(null);
+  const [loadingIntelligence, setLoadingIntelligence] = useState(false);
 
   /* ── Navigation state (new) ── */
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -958,10 +1034,10 @@ export default function UnifiedAgriAgentFrontend() {
   const askRecommendation = async () => {
     setLoadingRecommend(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/recommend_crop", {
+      const res = await fetch(`${API_BASE}/recommend_crop`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ soil_type: soilType, water_availability: water, season }),
+        body: JSON.stringify({ soil_type: soilType, water_availability: water, season, location }),
       });
       const data = await res.json();
       setRecommendation(data);
@@ -978,7 +1054,7 @@ export default function UnifiedAgriAgentFrontend() {
     try {
       const form = new FormData();
       form.append("file", imageFile);
-      const res = await fetch("http://127.0.0.1:8000/upload_image", {
+      const res = await fetch(`${API_BASE}/upload_image`, {
         method: "POST",
         body: form,
       });
@@ -998,7 +1074,7 @@ export default function UnifiedAgriAgentFrontend() {
     }
     setLoadingPred(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/predict_price", {
+      const res = await fetch(`${API_BASE}/predict_price`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ crop: recommendation.recommendations[0].crop }),
@@ -1017,23 +1093,48 @@ export default function UnifiedAgriAgentFrontend() {
   const fetchCalendar = async () => {
     setLoadingCalendar(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/farmer_calendar", {
+      const res = await fetch(`${API_BASE}/farmer_calendar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ crop: "tomato", sowing_date: "2025-09-01" }),
+        body: JSON.stringify({ crop: "cover crop", sowing_date: new Date().toISOString().slice(0, 10) }),
       });
       const data = await res.json();
       setCalendar(data);
     } catch {
-      setCalendar({ calendar: [{ date: "2025-09-15", task: "Irrigation" }] });
+      setCalendar({ crop: "Cover crop", calendar: [{ date: new Date().toISOString().slice(0, 10), task: "Inspect soil moisture and mulch cover" }] });
     } finally {
       setLoadingCalendar(false);
+    }
+  };
+
+  const loadIntelligence = async () => {
+    if (!soilType || !water) return setActiveSection("crop");
+    setLoadingIntelligence(true);
+    try {
+      const res = await fetch(`${API_BASE}/field-intelligence`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ location: location || "Demo farm", soil_type: soilType, water_availability: water }),
+      });
+      if (!res.ok) throw new Error("Field intelligence unavailable");
+      setIntelligence(await res.json());
+    } catch {
+      setIntelligence({
+        satellite: { ndvi: 0.68, trend: "+0.04 over 14 days", source: "Sentinel-compatible contract" },
+        soil: { ph: 6.7, moisture_percent: water === "low" ? 28 : 51, organic_carbon_percent: 0.74, texture: soilType },
+        weather: { rainfall_next_7_days_mm: 18, max_temperature_c: 32, risk: water === "low" ? "Elevated" : "Watch" },
+        advisory: { headline: "Scout moisture and retain ground cover before the next dry window.", confidence: 0.81, actions: [{ action: "Keep living roots", why: "Use a legume cover crop after harvest to protect soil carbon and fix nitrogen.", impact: "Builds soil organic matter" }, { action: "Minimise disturbance", why: "Use reduced tillage where practical to retain moisture and soil structure.", impact: "Improves water infiltration" }] },
+        provenance: { standard: "AgriN Connect Advisory v1" },
+      });
+    } finally {
+      setLoadingIntelligence(false);
     }
   };
 
   /* ── Nav config ── */
   const navItems = [
     { id: "dashboard", icon: "🏡", label: "Overview" },
+    { id: "intelligence", icon: "🛰️", label: "Field Intel" },
     { id: "crop",      icon: "🌾", label: "Crops" },
     { id: "disease",   icon: "🔬", label: "Disease" },
     { id: "market",    icon: "📊", label: "Market" },
@@ -1069,6 +1170,8 @@ export default function UnifiedAgriAgentFrontend() {
             setActiveSection={setActiveSection}
           />
         );
+      case "intelligence":
+        return <FieldIntelligenceSection location={location} soilType={soilType} water={water} intelligence={intelligence} loading={loadingIntelligence} loadIntelligence={loadIntelligence} />;
       case "disease":
         return (
           <DiseaseSection
@@ -1110,8 +1213,8 @@ export default function UnifiedAgriAgentFrontend() {
         <div className="sidebar-logo">
           <div className="sidebar-logo-icon">🌿</div>
           <div className="sidebar-logo-text">
-            <span className="sidebar-logo-name">AgroSense</span>
-            <span className="sidebar-logo-tagline">Smart Farming Platform</span>
+            <span className="sidebar-logo-name">AgriN Connect</span>
+            <span className="sidebar-logo-tagline">Regenerative intelligence</span>
           </div>
         </div>
 
@@ -1172,7 +1275,7 @@ export default function UnifiedAgriAgentFrontend() {
               {getGreeting()}, {location ? location : "Farmer"} 👋
             </span>
             <span className="topbar-subtitle">
-              Here's what's happening on your farm today.
+              Local intelligence, built for shared climate resilience.
             </span>
           </div>
           <div className="topbar-right">

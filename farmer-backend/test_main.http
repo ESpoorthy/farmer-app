@@ -1,11 +1,28 @@
-# Test your FastAPI endpoints
+@baseUrl = http://127.0.0.1:8000
 
-GET http://127.0.0.1:8000/
-Accept: application/json
+### Health check
+GET {{baseUrl}}/health
 
-###
+### Regenerative crop recommendations
+POST {{baseUrl}}/recommend_crop
+Content-Type: application/json
 
-GET http://127.0.0.1:8000/hello/User
-Accept: application/json
+{
+  "location": "Nashik, India",
+  "soil_type": "loamy",
+  "water_availability": "medium",
+  "season": "kharif"
+}
 
-###
+### Interoperable field intelligence brief
+POST {{baseUrl}}/field-intelligence
+Content-Type: application/json
+
+{
+  "location": "Nashik, India",
+  "soil_type": "loamy",
+  "water_availability": "medium"
+}
+
+### Cooperation model card
+GET {{baseUrl}}/cooperation/model-card

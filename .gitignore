@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
+# JavaScript
+node_modules/
+build/
+coverage/
+
+# IDE / operating-system files
+.idea/
+.vscode/
+.DS_Store
+
+# Local configuration
+.env
+.env.*
+!.env.example

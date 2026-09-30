@@ -17,6 +17,7 @@
 
 **Live Prototype:** https://agrin-connect.onrender.com<br>
 **GitHub Repository:** https://github.com/ESpoorthy/farmer-app
+**Demo Video:** https://drive.google.com/file/d/1vApCx5zxKYxeaVN2gUzxoATxF7apk8Pi/view?usp=sharing
 
 ## Overview
 

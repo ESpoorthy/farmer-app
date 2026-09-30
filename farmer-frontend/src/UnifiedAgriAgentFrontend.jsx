@@ -538,6 +538,9 @@ function DiseaseSection({ imageFile, setImageFile, detectionResult, loadingDetec
 
   const severityBadge = () => {
     if (!detectionResult) return null;
+    if (detectionResult.model_mode?.includes("low-confidence") || detectionResult.diagnosis?.startsWith("Uncertain")) {
+      return <span className="badge badge-gray">⚪ Diagnosis withheld</span>;
+    }
     const conf = detectionResult.confidence;
     if (conf >= 0.9) return <span className="badge badge-red">🔴 High Severity</span>;
     if (conf >= 0.7) return <span className="badge badge-amber">🟡 Moderate</span>;
@@ -644,7 +647,7 @@ function DiseaseSection({ imageFile, setImageFile, detectionResult, loadingDetec
               </div>
 
               <p style={{ fontSize: "var(--font-sm)", fontWeight: 600, color: "var(--clr-text-primary)", marginBottom: "var(--space-2)" }}>
-                Confidence Level
+                {detectionResult.model_mode?.includes("low-confidence") ? "Image confidence" : "Confidence Level"}
               </p>
               <div className="progress-bar-wrap" style={{ height: 10, marginBottom: "var(--space-2)" }}>
                 <div
@@ -658,7 +661,9 @@ function DiseaseSection({ imageFile, setImageFile, detectionResult, loadingDetec
                 />
               </div>
               <p style={{ fontSize: "var(--font-xs)", color: "var(--clr-text-muted)" }}>
-                {Math.round(detectionResult.confidence * 100)}% — {detectionResult.confidence >= 0.9 ? "High confidence detection" : "Moderate confidence"}
+                {Math.round(detectionResult.confidence * 100)}% — {detectionResult.model_mode?.includes("low-confidence")
+                  ? "below the diagnosis threshold; no disease label was issued"
+                  : detectionResult.confidence >= 0.9 ? "High confidence detection" : "Moderate confidence"}
               </p>
 
               <div

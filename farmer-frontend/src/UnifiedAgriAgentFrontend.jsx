@@ -526,7 +526,7 @@ function CropSection({
 /* ─────────────────────────────────────────────
    SECTION 3: Disease Detection
 ──────────────────────────────────────────────*/
-function DiseaseSection({ imageFile, setImageFile, detectionResult, loadingDetect, sendDetect }) {
+function DiseaseSection({ imageFile, setImageFile, diseaseCrop, setDiseaseCrop, detectionResult, setDetectionResult, loadingDetect, sendDetect }) {
   const [dragOver, setDragOver] = useState(false);
 
   const handleDrop = useCallback((e) => {
@@ -538,6 +538,7 @@ function DiseaseSection({ imageFile, setImageFile, detectionResult, loadingDetec
 
   const severityBadge = () => {
     if (!detectionResult) return null;
+    if (detectionResult.analysis_error) return <span className="badge badge-gray">⚪ Analysis unavailable</span>;
     if (detectionResult.model_mode?.includes("low-confidence") || detectionResult.diagnosis?.startsWith("Uncertain")) {
       return <span className="badge badge-gray">⚪ Diagnosis withheld</span>;
     }
@@ -555,7 +556,7 @@ function DiseaseSection({ imageFile, setImageFile, detectionResult, loadingDetec
           Pest & Disease Detection
         </h1>
         <p className="section-description">
-          Upload a photo of your plant or leaf and our AI will identify any diseases or pest damage instantly.
+          Select the crop, then upload one clear leaf photo. The model only diagnoses supported crop classes.
         </p>
       </div>
 
@@ -565,6 +566,19 @@ function DiseaseSection({ imageFile, setImageFile, detectionResult, loadingDetec
           <h3 style={{ fontSize: "var(--font-md)", fontWeight: 700, marginBottom: "var(--space-4)", color: "var(--clr-text-primary)" }}>
             Upload Plant Image
           </h3>
+
+          <label className="form-label" htmlFor="disease-crop">🌿 Select the crop first</label>
+          <div className="form-select-wrapper" style={{ marginBottom: "var(--space-4)" }}>
+            <select id="disease-crop" className="form-select" value={diseaseCrop} onChange={(e) => { setDiseaseCrop(e.target.value); setDetectionResult(null); }}>
+              <option value="">Choose a supported crop</option>
+              <option value="pepper">Pepper / capsicum</option>
+              <option value="potato">Potato</option>
+              <option value="tomato">Tomato</option>
+            </select>
+          </div>
+          <div className="alert alert-info" style={{ marginBottom: "var(--space-4)" }}>
+            <span>ℹ️</span><span style={{ fontSize: "var(--font-xs)" }}>This model does not cover tree or orchard leaves. It will withhold a diagnosis for an unsupported or unclear image.</span>
+          </div>
 
           <div
             className={`upload-zone${dragOver ? " drag-over" : ""}`}
@@ -598,14 +612,14 @@ function DiseaseSection({ imageFile, setImageFile, detectionResult, loadingDetec
             className="btn btn-danger btn-full"
             style={{ marginTop: "var(--space-4)", background: "var(--clr-red)", borderRadius: "var(--radius-lg)" }}
             onClick={sendDetect}
-            disabled={loadingDetect || !imageFile}
+            disabled={loadingDetect || !imageFile || !diseaseCrop}
           >
             {loadingDetect ? <><Spinner /> Analyzing image…</> : "🔍 Analyze Plant"}
           </button>
 
-          {!imageFile && (
+          {(!imageFile || !diseaseCrop) && (
             <p style={{ textAlign: "center", fontSize: "var(--font-xs)", color: "var(--clr-text-muted)", marginTop: "var(--space-3)" }}>
-              Select or drop an image to begin
+              {!diseaseCrop ? "Choose the crop to enable analysis" : "Select or drop an image to begin"}
             </p>
           )}
         </div>
@@ -636,7 +650,7 @@ function DiseaseSection({ imageFile, setImageFile, detectionResult, loadingDetec
                 </div>
                 <div className="result-card-body">
                   <div className="result-card-title">{detectionResult.diagnosis}</div>
-                  <div className="result-card-sub">{detectionResult.model_mode?.includes("low-confidence") ? "A reliable diagnosis could not be made from this image" : "Plant image analysis result"}</div>
+                  <div className="result-card-sub">{detectionResult.analysis_error ? "The service did not return a diagnosis" : detectionResult.model_mode?.includes("low-confidence") ? "A reliable diagnosis could not be made from this image" : "Plant image analysis result"}</div>
                   <div className="result-card-meta">
                     {severityBadge()}
                     <span className="badge badge-gray">
@@ -646,7 +660,7 @@ function DiseaseSection({ imageFile, setImageFile, detectionResult, loadingDetec
                 </div>
               </div>
 
-              <p style={{ fontSize: "var(--font-sm)", fontWeight: 600, color: "var(--clr-text-primary)", marginBottom: "var(--space-2)" }}>
+              {!detectionResult.analysis_error && <><p style={{ fontSize: "var(--font-sm)", fontWeight: 600, color: "var(--clr-text-primary)", marginBottom: "var(--space-2)" }}>
                 {detectionResult.model_mode?.includes("low-confidence") ? "Image confidence" : "Confidence Level"}
               </p>
               <div className="progress-bar-wrap" style={{ height: 10, marginBottom: "var(--space-2)" }}>
@@ -664,7 +678,7 @@ function DiseaseSection({ imageFile, setImageFile, detectionResult, loadingDetec
                 {Math.round(detectionResult.confidence * 100)}% — {detectionResult.model_mode?.includes("low-confidence")
                   ? "below the diagnosis threshold; no disease label was issued"
                   : detectionResult.confidence >= 0.9 ? "High confidence detection" : "Moderate confidence"}
-              </p>
+              </p></>}
 
               <div
                 className="alert alert-info"
@@ -677,7 +691,7 @@ function DiseaseSection({ imageFile, setImageFile, detectionResult, loadingDetec
               </div>
               {detectionResult.supported_crops && (
                 <p style={{ fontSize: "var(--font-xs)", color: "var(--clr-text-muted)", marginTop: "var(--space-3)" }}>
-                  Model coverage: {detectionResult.supported_crops.join(", ")} leaf images. Low-confidence results are intentionally not diagnosed.
+                  Model coverage: {detectionResult.supported_crops.join(", ")} leaf images. Selected crop: {detectionResult.crop || "not specified"}. Low-confidence results are intentionally not diagnosed.
                 </p>
               )}
             </div>
@@ -1087,6 +1101,7 @@ export default function UnifiedAgriAgentFrontend() {
   const [loadingRecommend, setLoadingRecommend] = useState(false);
 
   const [imageFile, setImageFile]         = useState(null);
+  const [diseaseCrop, setDiseaseCrop]     = useState("");
   const [detectionResult, setDetectionResult] = useState(null);
   const [loadingDetect, setLoadingDetect] = useState(false);
 
@@ -1125,19 +1140,27 @@ export default function UnifiedAgriAgentFrontend() {
   };
 
   const sendDetect = async () => {
-    if (!imageFile) return alert("Please select an image.");
+    if (!imageFile || !diseaseCrop) return alert("Choose a supported crop and select an image.");
     setLoadingDetect(true);
     try {
       const form = new FormData();
       form.append("file", imageFile);
+      form.append("crop", diseaseCrop);
       const res = await fetch(`${API_BASE}/upload_image`, {
         method: "POST",
         body: form,
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Analysis could not be completed.");
       setDetectionResult(data);
-    } catch {
-      setDetectionResult({ diagnosis: "Early Blight", confidence: 0.84 });
+    } catch (error) {
+      setDetectionResult({
+        diagnosis: "Analysis unavailable",
+        confidence: 0,
+        analysis_error: true,
+        next_step: error.message || "Please try again with a supported crop image.",
+        model_mode: "error",
+      });
     } finally {
       setLoadingDetect(false);
     }
@@ -1255,7 +1278,8 @@ export default function UnifiedAgriAgentFrontend() {
         return (
           <DiseaseSection
             imageFile={imageFile} setImageFile={setImageFile}
-            detectionResult={detectionResult}
+            diseaseCrop={diseaseCrop} setDiseaseCrop={setDiseaseCrop}
+            detectionResult={detectionResult} setDetectionResult={setDetectionResult}
             loadingDetect={loadingDetect}
             sendDetect={sendDetect}
           />

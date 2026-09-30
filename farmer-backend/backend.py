@@ -12,7 +12,7 @@ from typing import Literal
 import numpy as np
 import onnxruntime as ort
 from PIL import Image, UnidentifiedImageError
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, Form, UploadFile
 from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -101,6 +101,16 @@ CLASS_NAMES = [
     "Tomato yellow leaf curl virus", "Tomato mosaic virus", "Tomato healthy",
 ]
 MODEL_VERSION = "PlantVillage MobileNetV3 (15-class)"
+CROP_CLASS_INDICES = {
+    "pepper": [0, 1],
+    "potato": [2, 3, 4],
+    "tomato": list(range(5, 15)),
+}
+SUPPORTED_CROPS = list(CROP_CLASS_INDICES)
+# Calibrated conservatively for uploaded field photos.  The model was trained
+# on tightly framed PlantVillage images, so a lower score must not be turned
+# into a treatment recommendation.
+DIAGNOSIS_CONFIDENCE_THRESHOLD = 0.75
 _disease_session: ort.InferenceSession | None = None
 
 
@@ -114,8 +124,13 @@ def disease_session() -> ort.InferenceSession:
     return _disease_session
 
 
-def classify_leaf(image_bytes: bytes) -> dict:
-    """Run PlantVillage-compatible RGB preprocessing and confidence-calibrated inference."""
+def classify_leaf(image_bytes: bytes, crop: str) -> dict:
+    """Run crop-scoped PlantVillage inference without cross-crop diagnoses.
+
+    The global model probability is retained as the confidence measure.  Crop
+    selection only limits which class can be returned, so an out-of-domain
+    image cannot gain artificial confidence merely by choosing a crop.
+    """
     try:
         image = Image.open(BytesIO(image_bytes)).convert("RGB")
     except UnidentifiedImageError as error:
@@ -131,30 +146,33 @@ def classify_leaf(image_bytes: bytes) -> dict:
     logits = session.run(None, {session.get_inputs()[0].name: tensor})[0][0]
     logits = logits - np.max(logits)
     probabilities = np.exp(logits) / np.sum(np.exp(logits))
-    best_index = int(np.argmax(probabilities))
+    crop_indices = CROP_CLASS_INDICES[crop]
+    best_index = max(crop_indices, key=lambda index: float(probabilities[index]))
     confidence = float(probabilities[best_index])
     diagnosis = CLASS_NAMES[best_index]
     healthy = diagnosis.endswith("healthy")
 
     # Never present a low-confidence guess as a disease.  This is especially
     # important for out-of-domain field images and unsupported crop species.
-    if confidence < 0.65:
+    if confidence < DIAGNOSIS_CONFIDENCE_THRESHOLD:
         return {
             "diagnosis": "Uncertain — no reliable diagnosis",
             "confidence": round(confidence, 3),
             "next_step": "Retake a close, well-lit photo of one leaf, or consult a local agricultural extension officer.",
-            "model_mode": "real-model / low-confidence",
-            "supported_crops": ["pepper", "potato", "tomato"],
-            "top_predictions": [{"label": CLASS_NAMES[int(index)], "confidence": round(float(probabilities[int(index)]), 3)} for index in np.argsort(probabilities)[-3:][::-1]],
+            "model_mode": f"real-model / low-confidence / {crop}",
+            "crop": crop,
+            "supported_crops": SUPPORTED_CROPS,
+            "top_predictions": [{"label": CLASS_NAMES[index], "confidence": round(float(probabilities[index]), 3)} for index in sorted(crop_indices, key=lambda index: float(probabilities[index]), reverse=True)[:3]],
         }
 
     return {
         "diagnosis": "Healthy leaf" if healthy else diagnosis.title(),
         "confidence": round(confidence, 3),
         "next_step": "No disease signal detected; continue routine monitoring." if healthy else "Isolate affected foliage and consult a local extension officer before treatment.",
-        "model_mode": "real-model / PlantVillage",
-        "supported_crops": ["pepper", "potato", "tomato"],
-        "top_predictions": [{"label": CLASS_NAMES[int(index)], "confidence": round(float(probabilities[int(index)]), 3)} for index in np.argsort(probabilities)[-3:][::-1]],
+        "model_mode": f"real-model / PlantVillage / {crop}",
+        "crop": crop,
+        "supported_crops": SUPPORTED_CROPS,
+        "top_predictions": [{"label": CLASS_NAMES[index], "confidence": round(float(probabilities[index]), 3)} for index in sorted(crop_indices, key=lambda index: float(probabilities[index]), reverse=True)[:3]],
     }
 
 
@@ -202,7 +220,10 @@ def model_card():
 
 
 @app.post("/upload_image")
-async def upload_image(file: UploadFile | None = File(default=None)):
+async def upload_image(
+    file: UploadFile | None = File(default=None),
+    crop: Literal["pepper", "potato", "tomato"] = Form(...),
+):
     if file is None:
         raise HTTPException(status_code=400, detail="Select a plant image before analysis.")
     if file.content_type not in {"image/jpeg", "image/png", "image/webp"}:
@@ -213,7 +234,7 @@ async def upload_image(file: UploadFile | None = File(default=None)):
     if len(image_bytes) > 10 * 1024 * 1024:
         raise HTTPException(status_code=413, detail="Image must be 10 MB or smaller.")
     try:
-        return classify_leaf(image_bytes)
+        return classify_leaf(image_bytes, crop)
     except RuntimeError as error:
         raise HTTPException(status_code=503, detail="Disease model is temporarily unavailable.") from error
 

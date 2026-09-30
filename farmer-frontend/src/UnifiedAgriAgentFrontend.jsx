@@ -5,6 +5,18 @@ const API_BASE = process.env.REACT_APP_API_URL || (
   process.env.NODE_ENV === "production" ? "" : "http://127.0.0.1:8000"
 );
 
+const PROFILES = [
+  { id: "farmer", name: "Farmer", role: "Primary farm profile", initial: "F", accent: "#1f9d55" },
+  { id: "aisha", name: "Aisha Patel", role: "Family farm profile", initial: "A", accent: "#7c3aed" },
+  { id: "cooperative", name: "Green Roots Co-op", role: "Cooperative view", initial: "G", accent: "#0f766e" },
+];
+
+const COPY = {
+  en: { overview: "Overview", field: "Field Intel", crops: "Crops", disease: "Disease", market: "Market", calendar: "Calendar", navigation: "Navigation", resilience: "Local intelligence, built for shared climate resilience.", settings: "Settings", appearance: "Appearance", language: "Dashboard language", profile: "Profile", light: "Day mode", dark: "Dark mode", manage: "Profile & preferences" },
+  hi: { overview: "अवलोकन", field: "फील्ड इंटेल", crops: "फसलें", disease: "रोग", market: "बाज़ार", calendar: "कैलेंडर", navigation: "नेविगेशन", resilience: "साझा जलवायु लचीलेपन के लिए स्थानीय बुद्धिमत्ता।", settings: "सेटिंग्स", appearance: "रूप", language: "डैशबोर्ड भाषा", profile: "प्रोफ़ाइल", light: "डे मोड", dark: "डार्क मोड", manage: "प्रोफ़ाइल और प्राथमिकताएँ" },
+  pt: { overview: "Visão geral", field: "Inteligência de campo", crops: "Culturas", disease: "Doenças", market: "Mercado", calendar: "Calendário", navigation: "Navegação", resilience: "Inteligência local para resiliência climática compartilhada.", settings: "Configurações", appearance: "Aparência", language: "Idioma do painel", profile: "Perfil", light: "Modo claro", dark: "Modo escuro", manage: "Perfil e preferências" },
+};
+
 /* ─────────────────────────────────────────────
    Helper: get time-of-day greeting
 ──────────────────────────────────────────────*/
@@ -1029,6 +1041,10 @@ export default function UnifiedAgriAgentFrontend() {
   const [loadingCalendar, setLoadingCalendar] = useState(false);
   const [intelligence, setIntelligence]   = useState(null);
   const [loadingIntelligence, setLoadingIntelligence] = useState(false);
+  const [theme, setTheme]                 = useState("light");
+  const [language, setLanguage]           = useState("en");
+  const [profileId, setProfileId]         = useState("farmer");
+  const [settingsOpen, setSettingsOpen]   = useState(false);
 
   /* ── Navigation state (new) ── */
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -1135,17 +1151,19 @@ export default function UnifiedAgriAgentFrontend() {
   };
 
   /* ── Nav config ── */
+  const t = COPY[language];
+  const profile = PROFILES.find((item) => item.id === profileId) || PROFILES[0];
   const navItems = [
-    { id: "dashboard", icon: "🏡", label: "Overview" },
-    { id: "intelligence", icon: "🛰️", label: "Field Intel" },
-    { id: "crop",      icon: "🌾", label: "Crops" },
-    { id: "disease",   icon: "🔬", label: "Disease" },
-    { id: "market",    icon: "📊", label: "Market" },
-    { id: "calendar",  icon: "📅", label: "Calendar" },
+    { id: "dashboard", icon: "⌂", label: t.overview, tone: "green" },
+    { id: "intelligence", icon: "◈", label: t.field, tone: "blue" },
+    { id: "crop",      icon: "✦", label: t.crops, tone: "gold" },
+    { id: "disease",   icon: "✚", label: t.disease, tone: "red" },
+    { id: "market",    icon: "↗", label: t.market, tone: "purple" },
+    { id: "calendar",  icon: "▣", label: t.calendar, tone: "orange" },
   ];
 
   /* ── Greeting ── */
-  const farmerInitial = location ? location.trim()[0].toUpperCase() : "F";
+  const farmerInitial = profile.initial;
 
   /* ── Section renderer ── */
   const renderSection = () => {
@@ -1209,7 +1227,7 @@ export default function UnifiedAgriAgentFrontend() {
   };
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${theme === "dark" ? "theme-dark" : "theme-light"}`}>
       {/* ── Sidebar ── */}
       <aside className="sidebar">
         {/* Logo */}
@@ -1223,7 +1241,7 @@ export default function UnifiedAgriAgentFrontend() {
 
         {/* Nav */}
         <nav className="sidebar-nav" role="navigation" aria-label="Main navigation">
-          <span className="sidebar-section-label">Navigation</span>
+          <span className="sidebar-section-label">{t.navigation}</span>
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -1231,7 +1249,7 @@ export default function UnifiedAgriAgentFrontend() {
               onClick={() => setActiveSection(item.id)}
               aria-current={activeSection === item.id ? "page" : undefined}
             >
-              <span className="nav-item-icon">{item.icon}</span>
+              <span className={`nav-item-icon ${item.tone}`}>{item.icon}</span>
               <span className="nav-item-text">{item.label}</span>
             </button>
           ))}
@@ -1275,17 +1293,34 @@ export default function UnifiedAgriAgentFrontend() {
         <header className="topbar">
           <div className="topbar-left">
             <span className="topbar-greeting">
-              {getGreeting()}, {location ? location : "Farmer"} 👋
+              {getGreeting()}, {location ? location : profile.name} 👋
             </span>
             <span className="topbar-subtitle">
-              Local intelligence, built for shared climate resilience.
+              {t.resilience}
             </span>
           </div>
           <div className="topbar-right">
+            <button className="theme-toggle" onClick={() => setTheme(theme === "light" ? "dark" : "light")} title={theme === "light" ? t.dark : t.light} aria-label={theme === "light" ? t.dark : t.light}>
+              {theme === "light" ? "☾" : "☀"}
+            </button>
             <span className="topbar-date">{formatDate()}</span>
-            <div className="avatar" title="Farmer profile">
+            <button className="avatar" title={t.manage} onClick={() => setSettingsOpen(!settingsOpen)} style={{ background: `linear-gradient(135deg, ${profile.accent}, hsl(158, 64%, 45%))` }}>
               {farmerInitial}
-            </div>
+            </button>
+            {settingsOpen && (
+              <div className="settings-popover" role="dialog" aria-label={t.settings}>
+                <div className="settings-heading"><span>⚙</span><div><strong>{t.settings}</strong><small>{t.manage}</small></div></div>
+                <label className="settings-label">{t.profile}</label>
+                <div className="profile-list">
+                  {PROFILES.map((item) => <button key={item.id} className={`profile-option${profileId === item.id ? " selected" : ""}`} onClick={() => setProfileId(item.id)}><span style={{ background: item.accent }}>{item.initial}</span><div><strong>{item.name}</strong><small>{item.role}</small></div>{profileId === item.id && <b>✓</b>}</button>)}
+                </div>
+                <label className="settings-label" htmlFor="dashboard-language">{t.language}</label>
+                <select id="dashboard-language" className="settings-select" value={language} onChange={(event) => setLanguage(event.target.value)}>
+                  <option value="en">English</option><option value="hi">हिन्दी</option><option value="pt">Português</option>
+                </select>
+                <div className="appearance-row"><span>{t.appearance}</span><button className="appearance-toggle" onClick={() => setTheme(theme === "light" ? "dark" : "light")}><span className={theme === "light" ? "selected" : ""}>☀ {t.light}</span><span className={theme === "dark" ? "selected" : ""}>☾ {t.dark}</span></button></div>
+              </div>
+            )}
           </div>
         </header>
 

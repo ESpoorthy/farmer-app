@@ -633,7 +633,7 @@ function DiseaseSection({ imageFile, setImageFile, detectionResult, loadingDetec
                 </div>
                 <div className="result-card-body">
                   <div className="result-card-title">{detectionResult.diagnosis}</div>
-                  <div className="result-card-sub">Plant disease detected</div>
+                  <div className="result-card-sub">{detectionResult.model_mode?.includes("low-confidence") ? "A reliable diagnosis could not be made from this image" : "Plant image analysis result"}</div>
                   <div className="result-card-meta">
                     {severityBadge()}
                     <span className="badge badge-gray">
@@ -667,9 +667,14 @@ function DiseaseSection({ imageFile, setImageFile, detectionResult, loadingDetec
               >
                 <span>💡</span>
                 <span style={{ fontSize: "var(--font-xs)" }}>
-                  Consult your local agricultural extension officer for treatment options.
+                  {detectionResult.next_step || "Consult your local agricultural extension officer for treatment options."}
                 </span>
               </div>
+              {detectionResult.supported_crops && (
+                <p style={{ fontSize: "var(--font-xs)", color: "var(--clr-text-muted)", marginTop: "var(--space-3)" }}>
+                  Model coverage: {detectionResult.supported_crops.join(", ")} leaf images. Low-confidence results are intentionally not diagnosed.
+                </p>
+              )}
             </div>
           ) : (
             <div style={{ flex: 1 }}>

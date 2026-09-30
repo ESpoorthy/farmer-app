@@ -469,6 +469,15 @@ body {
 
 .theme-dark { --clr-bg: hsl(220, 22%, 11%); --clr-card: hsl(220, 20%, 15%); --clr-card-hover: hsl(220, 20%, 18%); --clr-border: hsl(220, 16%, 25%); --clr-border-subtle: hsl(220, 16%, 21%); --clr-text-primary: hsl(210, 20%, 96%); --clr-text-secondary: hsl(215, 12%, 69%); --clr-text-muted: hsl(215, 10%, 54%); --clr-primary-light: hsl(142, 38%, 18%); --clr-amber-light: hsl(38, 60%, 17%); --clr-red-light: hsl(0, 40%, 18%); --clr-blue-light: hsl(213, 45%, 18%); --clr-purple-light: hsl(258, 40%, 19%); }
 .theme-dark .topbar { background: hsl(220, 21%, 13%); }.theme-dark .card,.theme-dark .signal-card,.theme-dark .price-card { box-shadow: 0 4px 18px rgba(0,0,0,.22); }.theme-dark .intelligence-hero { background:linear-gradient(110deg,hsl(217,45%,16%),hsl(151,38%,16%)); }.theme-dark .action-item { background:hsl(142, 30%, 16%); }.theme-dark .cooperation-card { background:hsl(258,30%,16%); }
+.theme-dark .badge-amber { color: hsl(42, 100%, 82%); }
+.theme-dark .badge-red { color: hsl(0, 100%, 84%); }
+.theme-dark .badge-blue { color: hsl(208, 100%, 84%); }
+.theme-dark .badge-purple { color: hsl(268, 100%, 86%); }
+.theme-dark .alert-info { color: hsl(208, 100%, 86%); background: hsl(213, 42%, 18%); border-color: hsl(213, 58%, 35%); }
+.theme-dark .alert-success { color: hsl(142, 75%, 86%); background: hsl(142, 35%, 17%); border-color: hsl(142, 47%, 33%); }
+.theme-dark .form-hint, .theme-dark .upload-hint, .theme-dark .empty-state-desc, .theme-dark .timeline-date { color: hsl(215, 15%, 74%); }
+.theme-dark .cooperation-tags span { color: hsl(268, 100%, 86%); }
+.theme-dark .card[style*="hsl(38"] { color: hsl(42, 100%, 87%); background: hsl(38, 48%, 16%) !important; border-color: hsl(38, 55%, 34%) !important; }
 
 /* ── Section Header ── */
 .section-header {

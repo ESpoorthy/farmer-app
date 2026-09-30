@@ -5,10 +5,15 @@ same response contract can be populated by national soil labs, weather
 providers, and satellite catalogues shared by BRICS partners.
 """
 from datetime import date, timedelta
+from io import BytesIO
 from pathlib import Path
 from typing import Literal
 
+import numpy as np
+import onnxruntime as ort
+from PIL import Image, UnidentifiedImageError
 from fastapi import FastAPI, File, UploadFile
+from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -87,6 +92,70 @@ def crop_catalogue(season: str, water: str, soil: str) -> list[dict]:
 
 
 FRONTEND_BUILD = Path(__file__).resolve().parent.parent / "farmer-frontend" / "build"
+MODEL_PATH = Path(__file__).resolve().parent / "models" / "plantvillage-mobilenetv3.onnx"
+CLASS_NAMES = [
+    "Pepper bell bacterial spot", "Pepper bell healthy", "Potato early blight",
+    "Potato late blight", "Potato healthy", "Tomato bacterial spot",
+    "Tomato early blight", "Tomato late blight", "Tomato leaf mold",
+    "Tomato septoria leaf spot", "Tomato spider mites", "Tomato target spot",
+    "Tomato yellow leaf curl virus", "Tomato mosaic virus", "Tomato healthy",
+]
+MODEL_VERSION = "PlantVillage MobileNetV3 (15-class)"
+_disease_session: ort.InferenceSession | None = None
+
+
+def disease_session() -> ort.InferenceSession:
+    """Load the compact ONNX classifier once per service process."""
+    global _disease_session
+    if _disease_session is None:
+        if not MODEL_PATH.exists():
+            raise RuntimeError("Disease model asset is missing")
+        _disease_session = ort.InferenceSession(str(MODEL_PATH), providers=["CPUExecutionProvider"])
+    return _disease_session
+
+
+def classify_leaf(image_bytes: bytes) -> dict:
+    """Run PlantVillage-compatible RGB preprocessing and confidence-calibrated inference."""
+    try:
+        image = Image.open(BytesIO(image_bytes)).convert("RGB")
+    except UnidentifiedImageError as error:
+        raise HTTPException(status_code=400, detail="Upload a valid JPG, PNG, or WEBP plant image.") from error
+
+    # ImageNet normalization is part of this model's documented training contract.
+    image = image.resize((224, 224))
+    pixels = np.asarray(image, dtype=np.float32) / 255.0
+    pixels = (pixels - np.array([0.485, 0.456, 0.406], dtype=np.float32)) / np.array([0.229, 0.224, 0.225], dtype=np.float32)
+    tensor = np.transpose(pixels, (2, 0, 1))[None, ...]
+
+    session = disease_session()
+    logits = session.run(None, {session.get_inputs()[0].name: tensor})[0][0]
+    logits = logits - np.max(logits)
+    probabilities = np.exp(logits) / np.sum(np.exp(logits))
+    best_index = int(np.argmax(probabilities))
+    confidence = float(probabilities[best_index])
+    diagnosis = CLASS_NAMES[best_index]
+    healthy = diagnosis.endswith("healthy")
+
+    # Never present a low-confidence guess as a disease.  This is especially
+    # important for out-of-domain field images and unsupported crop species.
+    if confidence < 0.65:
+        return {
+            "diagnosis": "Uncertain — no reliable diagnosis",
+            "confidence": round(confidence, 3),
+            "next_step": "Retake a close, well-lit photo of one leaf, or consult a local agricultural extension officer.",
+            "model_mode": "real-model / low-confidence",
+            "supported_crops": ["pepper", "potato", "tomato"],
+            "top_predictions": [{"label": CLASS_NAMES[int(index)], "confidence": round(float(probabilities[int(index)]), 3)} for index in np.argsort(probabilities)[-3:][::-1]],
+        }
+
+    return {
+        "diagnosis": "Healthy leaf" if healthy else diagnosis.title(),
+        "confidence": round(confidence, 3),
+        "next_step": "No disease signal detected; continue routine monitoring." if healthy else "Isolate affected foliage and consult a local extension officer before treatment.",
+        "model_mode": "real-model / PlantVillage",
+        "supported_crops": ["pepper", "potato", "tomato"],
+        "top_predictions": [{"label": CLASS_NAMES[int(index)], "confidence": round(float(probabilities[int(index)]), 3)} for index in np.argsort(probabilities)[-3:][::-1]],
+    }
 
 
 @app.get("/", include_in_schema=False)
@@ -134,7 +203,19 @@ def model_card():
 
 @app.post("/upload_image")
 async def upload_image(file: UploadFile | None = File(default=None)):
-    return {"diagnosis": "Early Leaf Blight", "confidence": 0.84, "next_step": "Isolate affected foliage and consult a local extension officer before treatment.", "model_mode": "demo", "image_received": file is not None}
+    if file is None:
+        raise HTTPException(status_code=400, detail="Select a plant image before analysis.")
+    if file.content_type not in {"image/jpeg", "image/png", "image/webp"}:
+        raise HTTPException(status_code=415, detail="Only JPG, PNG, and WEBP images are supported.")
+    image_bytes = await file.read()
+    if not image_bytes:
+        raise HTTPException(status_code=400, detail="The uploaded image is empty.")
+    if len(image_bytes) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Image must be 10 MB or smaller.")
+    try:
+        return classify_leaf(image_bytes)
+    except RuntimeError as error:
+        raise HTTPException(status_code=503, detail="Disease model is temporarily unavailable.") from error
 
 
 @app.post("/predict_price")

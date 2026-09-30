@@ -1,6 +1,9 @@
 import React, { useState, useCallback } from "react";
 
-const API_BASE = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+// Hosted builds use same-origin API routes; local development keeps its API explicit.
+const API_BASE = process.env.REACT_APP_API_URL || (
+  process.env.NODE_ENV === "production" ? "" : "http://127.0.0.1:8000"
+);
 
 /* ─────────────────────────────────────────────
    Helper: get time-of-day greeting

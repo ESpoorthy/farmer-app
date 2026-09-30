@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: agrin-connect
+    runtime: python
+    plan: free
+    buildCommand: cd farmer-frontend && npm ci && npm run build && cd ../farmer-backend && pip install -r requirements.txt
+    startCommand: cd farmer-backend && uvicorn backend:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health

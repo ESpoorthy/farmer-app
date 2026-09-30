@@ -5,10 +5,13 @@ same response contract can be populated by national soil labs, weather
 providers, and satellite catalogues shared by BRICS partners.
 """
 from datetime import date, timedelta
+from pathlib import Path
 from typing import Literal
 
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 app = FastAPI(
@@ -83,8 +86,15 @@ def crop_catalogue(season: str, water: str, soil: str) -> list[dict]:
     ]
 
 
-@app.get("/")
+FRONTEND_BUILD = Path(__file__).resolve().parent.parent / "farmer-frontend" / "build"
+
+
+@app.get("/", include_in_schema=False)
 def root():
+    """Serve the production React app when it has been built."""
+    index = FRONTEND_BUILD / "index.html"
+    if index.exists():
+        return FileResponse(index)
     return {"name": "AgriN Connect API", "status": "ready", "version": app.version}
 
 
@@ -138,3 +148,7 @@ def predict_price(payload: PricePredictPayload):
 def farmer_calendar(payload: CalendarRequest):
     start = date.today()
     return {"crop": payload.crop.title(), "calendar": [{"date": str(start + timedelta(days=3)), "task": "Inspect soil moisture and mulch cover"}, {"date": str(start + timedelta(days=10)), "task": "Scout field edges for pests and beneficial insects"}, {"date": str(start + timedelta(days=18)), "task": "Record crop condition and irrigation decision"}]}
+
+
+if (FRONTEND_BUILD / "static").exists():
+    app.mount("/static", StaticFiles(directory=FRONTEND_BUILD / "static"), name="static")

@@ -1,95 +1,227 @@
 # AgriN Connect
 
-> Regenerative agricultural intelligence for smallholder farmers — designed as an interoperable digital public good for BRICS cooperation.
+### Interoperable AI-Powered Regenerative Agricultural Intelligence Network
 
-AgriN Connect converts local farm context into transparent, practical decisions. It brings together soil-health indicators, satellite-compatible vegetation signals, weather forecasts, regenerative crop recommendations, plant-disease triage, market context, and a field calendar in one farmer-facing workspace.
+> AI-powered field intelligence combining soil health, weather, satellite-derived insights and regenerative agriculture recommendations for small and marginal farmers.
 
-## Why this matters
+[![Project status: prototype](https://img.shields.io/badge/status-prototype-1f7a4f)](https://github.com/ESpoorthy/farmer-app)
+[![React](https://img.shields.io/badge/frontend-React%2019-61dafb?logo=react&logoColor=20232a)](https://react.dev/)
+[![FastAPI](https://img.shields.io/badge/backend-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![GitHub repository](https://img.shields.io/badge/GitHub-Repository-181717?logo=github)](https://github.com/ESpoorthy/farmer-app)
 
-Small and marginal farmers need timely, local guidance but often face fragmented data and climate uncertainty. AgriN Connect demonstrates a shared advisory layer where national data providers can contribute signals without giving up sovereignty, and farmers remain in control of their data.
+## 🚀 Live Prototype
 
-## Track 4 alignment
+[Open AgriN Connect](LIVE_PROTOTYPE_URL)
 
-| Challenge need | AgriN Connect response |
-| --- | --- |
-| Localised AI advisories | Explainable recommendations based on season, soil type and water constraints |
-| Satellite, soil and weather intelligence | A field brief combining Sentinel-compatible NDVI, soil health, and forecast-provider-compatible signals |
-| Regenerative agriculture | Crop diversity, cover crops, residue mulching and reduced-tillage actions are surfaced with each advisory |
-| Crop diagnostics | Leaf-image upload with a disease-inference response contract and safe next-step guidance |
-| BRICS cooperation | A portable `AgriN Connect Advisory v1` data contract, model card, consent-led sharing and provenance |
-| Digital public good | Offline-capable demo signals, documented HTTP APIs, no proprietary client dependencies |
+> The URL above will be replaced with the verified public deployment during final release.
 
-## Key features
+## 🔗 Project Links
 
-- **Field Intelligence:** Visual field brief with vegetation health (NDVI), soil pH/carbon/moisture, and seven-day weather risk.
-- **Regenerative crop advisor:** Ranks crop and intercrop options and explains their soil and climate rationale.
-- **Actionable advisory:** Recommends practices such as living roots, residue mulch, and reduced disturbance.
-- **Plant health triage:** Image upload endpoint with diagnosis, confidence, and a human-safe next step.
-- **Transparent market and calendar views:** Shows demo price/yield context plus repeatable field tasks.
-- **Cooperation by design:** Local location data remains local; only consented, aggregated indicators can be shared.
+**Live Prototype:** LIVE_PROTOTYPE_URL  
+**GitHub Repository:** https://github.com/ESpoorthy/farmer-app
 
-## Architecture
+## Overview
+
+AgriN Connect helps smallholder farmers move from fragmented, reactive farm decisions to practical field intelligence. It brings together soil-health indicators, satellite-compatible vegetation signals, weather and climate risk, crop suitability, disease-triage workflow, market context, and regenerative farming knowledge in one explainable advisory experience.
+
+**Sense → Understand → Recommend → Act.**
+
+The prototype is inspired by the **Track 4 — AgriN & Regenerative Agricultural Intelligence** challenge and the **BRICS theme of cooperation**. It demonstrates an interoperable intelligence layer; it is not an official BRICS or AgriN government platform.
+
+## The Problem
+
+Small and marginal farmers may lack access to localised agricultural intelligence. Fragmented access to soil, weather, crop, and remote-sensing information makes timely decisions harder and can increase crop, water, and climate risks.
+
+Agricultural data, models, and best practices are also fragmented across systems. This makes interoperability and knowledge exchange difficult—even when neighbouring regions face similar climate and food-security challenges.
+
+## Our Solution
+
+AgriN Connect is an integrated agricultural intelligence platform, rather than a collection of disconnected tools. It uses farmer-provided context alongside standardised field signals to produce transparent, regenerative recommendations.
 
 ```text
-Farmer web app (React)
-        │
-        ▼
-AgriN Connect API (FastAPI)
-        │
-        ├── Soil / farmer context
-        ├── Sentinel-compatible satellite signal
-        ├── Forecast-provider-compatible weather signal
-        └── Explainable advisory + provenance contract
-                │
-                ▼
-       Regenerative actions / crop advice / cooperative model exchange
+Farmer + Field Data
+        ↓
+Satellite / Remote-Sensing Signal
+        ↓
+Soil Intelligence + Weather & Climate Risk
+        ↓
+Farm Intelligence
+        ↓
+Explainable Advisory
+        ↓
+Regenerative Action
 ```
 
-The prototype uses deterministic demo signals so it works reliably without an API key. Production adapters can replace those signals with approved local satellite catalogues, soil labs, weather agencies, and disease models while preserving the response contract.
+```text
+Country / Agricultural System
+            ↕
+   Common Advisory Data Contract
+            ↕
+AgriN Connect Intelligence Layer
+```
 
-## Run locally
+## ✨ What the Prototype Demonstrates
+
+### 🌱 AI Farm Intelligence
+
+Ranks crop and intercrop options from season, soil type, and water availability. Each option includes a suitability score, a practical rationale, and a regenerative-fit indicator.
+
+### 🛰️ Satellite / Field Intelligence
+
+Generates a satellite-compatible field brief with NDVI and vegetation-trend fields. The current prototype returns deterministic sample values through a Sentinel-compatible response contract, designed to be replaced by an approved local remote-sensing provider.
+
+### 🧪 Soil Health Intelligence
+
+Surfaces soil texture, pH, organic carbon, and moisture indicators so farmers can see the field evidence behind a recommendation.
+
+### ☁️ Weather & Climate Intelligence
+
+Shows a seven-day rainfall outlook, temperature, and water-risk flag that help frame immediate farm actions. The demo uses a provider-compatible contract and deterministic data for reliable offline demonstration.
+
+### ♻️ Regenerative Agriculture Advisor
+
+Recommends implemented practices such as legume cover crops, residue mulching under water stress, reduced tillage, and avoiding compaction in clay soils. Crop guidance favours diversity, intercrops, and nitrogen-fixing pulses where appropriate.
+
+### 🩺 Crop Disease Diagnostics
+
+Provides an image-upload workflow, diagnostic response contract, confidence display, and safe escalation guidance. Its present inference response is a deterministic demo placeholder; a validated regional vision model is a production integration point.
+
+### 🤖 Explainable AI
+
+Every advisory is designed to be read as:
+
+```text
+Recommendation
+Why
+Evidence
+Confidence
+Suggested Action
+```
+
+The UI shows observed/simulated signal values separately from advice. This makes the demo transparent and provides a clear path for plugging in locally validated AI models.
+
+### 📅 Farm Planning
+
+Creates a field-task calendar with actions such as checking soil moisture, maintaining mulch cover, scouting field edges, and recording irrigation decisions.
+
+### 📈 Market Intelligence
+
+Displays a demo price and yield context for the top crop recommendation. Values are explicitly labelled as demo estimates and are not live market prices.
+
+### 🤝 Cooperation Layer
+
+Exposes an `AgriN Connect Advisory v1` model card and provenance payload. The contract groups `soil`, `satellite`, `weather`, `advisory`, and `provenance` so national partners can replace local data adapters without changing the farmer-facing experience.
+
+## 🧭 Architecture
+
+```mermaid
+flowchart TD
+    A[Farmer context] --> B[AgriN Connect web app]
+    B --> C[Farm intelligence API]
+    C --> D[Soil indicators]
+    C --> E[Satellite-compatible NDVI signal]
+    C --> F[Weather-risk signal]
+    C --> G[Crop suitability rules]
+    C --> H[Disease diagnostic contract]
+    D --> I[Explainable advisory]
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+    I --> J[Regenerative farm action]
+    J --> K[Consent-led cooperation layer]
+    K --> L[Portable advisory data contract]
+```
+
+## 🔄 Farmer Workflow
+
+```mermaid
+flowchart LR
+    A[Observe] --> B[Analyse]
+    B --> C[Understand]
+    C --> D[Recommend]
+    D --> E[Explain]
+    E --> F[Act]
+```
+
+## 🌍 Designed for Cooperation
+
+Inspired by the AgriN / BRICS cooperation theme, the prototype demonstrates how an interoperable agricultural intelligence layer could support cross-border data and model exchange.
+
+**Implemented today**
+
+- A common `AgriN Connect Advisory v1` response structure and model card.
+- Signal provenance and a clear distinction between demo, observed, and modelled data.
+- Consent-led sharing guidance: location remains local and only aggregated, consented indicators are intended to be shareable.
+- Provider-agnostic adapters for soil, satellite, weather, and disease intelligence.
+
+**Future interoperability extensions**
+
+- Country-aware agronomic schemas and local-language advisories.
+- Regionally validated models exchanged with version and evaluation metadata.
+- Federated learning or aggregate-statistic exchange without centralising raw farm records.
+- National data-provider integrations governed by local data-sovereignty rules.
+
+## 🛠️ Technology Stack
+
+| Layer | Technology used |
+| --- | --- |
+| Frontend | React 19, Create React App, CSS |
+| Backend | Python, FastAPI, Pydantic, Uvicorn |
+| Farm intelligence | Deterministic rules and provider-compatible advisory contracts |
+| Data / signals | Demo soil, satellite-compatible NDVI, and forecast-compatible weather payloads |
+| Deployment | Public HTTPS deployment in progress |
+
+## Run Locally
 
 Prerequisites: Python 3.10+ and Node.js 18+.
 
 ```bash
-# terminal 1 — API
+# Terminal 1 — API
 cd farmer-backend
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
 pip install -r requirements.txt
 uvicorn backend:app --reload --port 8000
 
-# terminal 2 — web app
+# Terminal 2 — web app
 cd farmer-frontend
 npm ci
 npm start
 ```
 
-Open `http://localhost:3000`. Start in **Crops**, set soil and water conditions, then open **Field Intel** to generate the complete advisory.
+Open `http://localhost:3000`. Set conditions in **Crops**, then use **Field Intel** to generate a complete advisory.
 
-## API surface
+To point a production frontend to a hosted API, build with `REACT_APP_API_URL=https://your-api.example`.
+
+## API Surface
 
 | Endpoint | Purpose |
 | --- | --- |
 | `GET /health` | Service health check |
-| `POST /field-intelligence` | Soil, satellite, weather, regenerative advisory and provenance |
+| `POST /field-intelligence` | Soil, satellite, weather, advisory, and provenance brief |
 | `POST /recommend_crop` | Explainable regenerative crop/intercrop ranking |
-| `POST /upload_image` | Disease diagnostic inference contract |
+| `POST /upload_image` | Disease-diagnostic workflow contract |
 | `POST /predict_price` | Demo market price and yield context |
-| `POST /farmer_calendar` | Regenerative field activity timeline |
-| `GET /cooperation/model-card` | Inputs, outputs and governance for cross-border reuse |
+| `POST /farmer_calendar` | Farm task timeline |
+| `GET /cooperation/model-card` | Inputs, outputs, and governance metadata |
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the interoperability and governance model, and [docs/DEMO.md](docs/DEMO.md) for a submission walkthrough.
+## Documentation
 
-## Responsible-use note
+- [Architecture](docs/architecture.md)
+- [AgriN advisory data contract](docs/agrin-data-contract.md)
+- [Regenerative agriculture approach](docs/regenerative-agriculture.md)
+- [Submission demo walkthrough](docs/DEMO.md)
 
-The current decision rules and diagnostic response are a **demo**, not agronomic or medical authority. Production use must validate recommendations with local agronomists, use regionally appropriate models, communicate uncertainty, and obtain farmer consent before processing or sharing any data.
+## Responsible Use
 
-## Repository layout
+AgriN Connect is a competition prototype. Its sample signals, crop rules, disease result, and market estimates are not a substitute for local agronomic expertise. Production use requires region-specific validation, farmer consent, locally appropriate model evaluation, and clear uncertainty communication.
+
+## Repository Layout
 
 ```text
 farmer-app/
 ├── farmer-frontend/  # React farmer experience
-├── farmer-backend/   # FastAPI advisory service
-└── docs/             # architecture and submission demo notes
+├── farmer-backend/   # FastAPI advisory API
+└── docs/             # architecture, data contract, and demo materials
 ```

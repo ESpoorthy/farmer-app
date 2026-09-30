@@ -47,6 +47,21 @@ const COPY = {
   ...Object.fromEntries(INDIAN_LANGUAGES.map(([code, _name, copy]) => [code, { ...DEFAULT_COPY, ...copy }])),
 };
 
+// Page content belongs to the same translation contract as the navigation.  Keeping
+// these labels keyed (rather than inline) prevents a selected language from leaving
+// a mixed-language dashboard behind.
+const CONTENT_COPY = {
+  te: {
+    fieldTitle: "క్షేత్ర సమాచారం", fieldDescription: "పొల పరిశీలనలను ఉపగ్రహ వృక్ష సంకేతాలు, నేల ఆరోగ్యం మరియు వాతావరణ అంచనాలతో కలిపే స్పష్టమైన సలహా పొర.",
+    advisoryVersion: "అగ్రిన్ కనెక్ట్ • సలహా V1", fieldHeroTitle: "పంచుకున్న డేటాను స్థానికంగా ఉపయోగపడే, పునరుత్పాదక చర్యగా మార్చండి.", fieldHeroDescription: "ఈ నమూనాలోని సంకేతాలు డెమో డేటా. అయినప్పటికీ, జాతీయ ప్రొవైడర్లు మరియు సమ్మతితో జరిగే సరిహద్దు-దాటి మోడల్ మార్పిడికి ఇది సిద్ధంగా ఉంది.", generateBrief: "క్షేత్ర నివేదికను రూపొందించండి", readingSignals: "సంకేతాలను చదువుతోంది…", setConditions: "క్షేత్ర నివేదిక రూపొందించడానికి ముందు పంటల విభాగంలో నేల రకం మరియు నీటి లభ్యతను సెట్ చేయండి.",
+    vegetationHealth: "వృక్ష ఆరోగ్యం", soilHealth: "నేల ఆరోగ్యం", outlook: "7 రోజుల అంచనా", organicCarbon: "సేంద్రీయ కార్బన్", waterRisk: "నీటి ప్రమాదం", explainableAdvisory: "వివరణాత్మక సలహా", confidence: "నమ్మకం", cooperation: "రూపకల్పనలోనే BRICS సహకారం", portableData: "పోర్టబుల్, సమ్మతి ఆధారిత డేటా మార్పిడి", cooperationCopy: "వ్యవసాయ స్థానం స్థానికంగానే ఉంటుంది. భాగస్వాములు సమ్మతించిన, సమగ్ర సూచికలు మరియు తిరిగి ఉపయోగించగల సలహా మోడళ్లను మాత్రమే పంచుకోగలరు.", farmerConsent: "రైతు సమ్మతి", localSovereignty: "స్థానిక సార్వభౌమత్వం", openContract: "ఓపెన్ ఒప్పందం", modelProvenance: "మోడల్ మూలం", standard: "ప్రమాణం", fieldReady: "మీ క్షేత్ర నివేదిక రూపొందించడానికి సిద్ధంగా ఉంది", fieldReadyCopy: "వివరణాత్మక పునరుత్పాదక సలహాను రూపొందించడానికి పంట సలహాదారులో ఇప్పటికే నమోదు చేసిన వ్యవసాయ పరిస్థితులను ఉపయోగించండి.",
+    location: "స్థానం", activeRegion: "క్రియాశీల వ్యవసాయ ప్రాంతం", notSet: "ఇంకా సెట్ చేయలేదు", recommendations: "సిఫార్సులు", ready: "పంట సూచనలు సిద్ధంగా ఉన్నాయి", noneGenerated: "ఇంకా ఏదీ రూపొందించలేదు", diseaseScan: "వ్యాధి స్కాన్", noScan: "స్కాన్ చేయలేదు", calendarTasks: "క్యాలెండర్ పనులు", upcomingTasks: "రాబోయే పనులు", calendarNotLoaded: "క్యాలెండర్ లోడ్ కాలేదు", welcome: "అగ్రిన్ కనెక్ట్‌కు స్వాగతం", welcomeCopy: "చిన్న రైతుల కోసం పునరుత్పాదక, వివరణాత్మక వ్యవసాయ సమాచారం — BRICS దేశాల సహకారంతో నిర్మించబడింది.", quickActions: "త్వరిత చర్యలు", cropRecommendation: "పంట సిఫార్సు", cropRecommendationCopy: "మీ నేల మరియు సీజన్ ఆధారంగా AI-శక్తితో పంట సూచనలు పొందండి", diseaseDetection: "వ్యాధి గుర్తింపు", diseaseDetectionCopy: "తెగుళ్లు మరియు వ్యాధులను గుర్తించడానికి ఆకు ఫోటోను అప్‌లోడ్ చేయండి", marketInsights: "మార్కెట్ సమాచారం", marketInsightsCopy: "పంట ధరలు మరియు హెక్టారుకు అంచనా దిగుబడిని తెలుసుకోండి", farmCalendar: "వ్యవసాయ క్యాలెండర్", farmCalendarCopy: "మీ రాబోయే వ్యవసాయ పనులు మరియు కార్యాచరణ షెడ్యూల్‌ను చూడండి", fieldCopy: "నేల, వాతావరణం మరియు ఉపగ్రహ సంకేతాలను ఆచరణాత్మక చర్యలుగా కలపండి",
+  },
+  hi: { fieldTitle: "फील्ड इंटेलिजेंस", fieldDescription: "खेत के अवलोकनों को उपग्रह संकेतों, मृदा स्वास्थ्य और मौसम पूर्वानुमान से जोड़ने वाली स्पष्ट सलाह।", fieldHeroTitle: "साझा डेटा को स्थानीय, पुनर्योजी कार्रवाई में बदलें।", generateBrief: "फील्ड ब्रीफ बनाएँ", readingSignals: "संकेत पढ़े जा रहे हैं…", setConditions: "फील्ड ब्रीफ बनाने से पहले फसलों में मिट्टी का प्रकार और पानी की उपलब्धता चुनें।", location: "स्थान", recommendations: "सिफारिशें", diseaseScan: "रोग स्कैन", calendarTasks: "कैलेंडर कार्य", welcome: "AgriN Connect में आपका स्वागत है", quickActions: "त्वरित कार्य", cropRecommendation: "फसल सिफारिश", diseaseDetection: "रोग पहचान", marketInsights: "बाज़ार जानकारी", farmCalendar: "कृषि कैलेंडर" },
+};
+
+const contentFor = (language, key, fallback) => CONTENT_COPY[language]?.[key] || fallback;
+
 /* ─────────────────────────────────────────────
    Helper: get time-of-day greeting
 ──────────────────────────────────────────────*/
@@ -153,7 +168,8 @@ function Spinner({ dark }) {
 /* ─────────────────────────────────────────────
    SECTION 1: Dashboard / Overview
 ──────────────────────────────────────────────*/
-function DashboardSection({ location, recommendation, detectionResult, calendar, setActiveSection }) {
+function DashboardSection({ location, recommendation, detectionResult, calendar, setActiveSection, language }) {
+  const c = (key, fallback) => contentFor(language, key, fallback);
   const recCount  = recommendation?.recommendations?.length ?? 0;
   const calCount  = calendar?.calendar?.length ?? 0;
   const hasDetect = !!detectionResult;
@@ -163,36 +179,36 @@ function DashboardSection({ location, recommendation, detectionResult, calendar,
       id: "intelligence",
       color: "blue",
       icon: "🛰️",
-      title: "Field Intelligence",
-      desc: "Combine soil, weather and satellite signals into practical actions",
+      title: c("fieldTitle", "Field Intelligence"),
+      desc: c("fieldCopy", "Combine soil, weather and satellite signals into practical actions"),
     },
     {
       id: "crop",
       color: "green",
       icon: "🌾",
-      title: "Crop Recommendation",
-      desc: "Get AI-powered crop suggestions based on your soil & season",
+      title: c("cropRecommendation", "Crop Recommendation"),
+      desc: c("cropRecommendationCopy", "Get AI-powered crop suggestions based on your soil & season"),
     },
     {
       id: "disease",
       color: "red",
       icon: "🔬",
-      title: "Disease Detection",
-      desc: "Upload a leaf photo to detect pests and diseases",
+      title: c("diseaseDetection", "Disease Detection"),
+      desc: c("diseaseDetectionCopy", "Upload a leaf photo to detect pests and diseases"),
     },
     {
       id: "market",
       color: "purple",
       icon: "📊",
-      title: "Market Insights",
-      desc: "Predict crop prices and expected yield per hectare",
+      title: c("marketInsights", "Market Insights"),
+      desc: c("marketInsightsCopy", "Predict crop prices and expected yield per hectare"),
     },
     {
       id: "calendar",
       color: "amber",
       icon: "📅",
-      title: "Farm Calendar",
-      desc: "View your upcoming farming tasks and activity schedule",
+      title: c("farmCalendar", "Farm Calendar"),
+      desc: c("farmCalendarCopy", "View your upcoming farming tasks and activity schedule"),
     },
   ];
 
@@ -202,34 +218,34 @@ function DashboardSection({ location, recommendation, detectionResult, calendar,
       <div className="stat-grid">
         <div className="stat-card">
           <div className="stat-card-icon" style={{ background: "var(--clr-primary-light)" }}>🌍</div>
-          <div className="stat-card-label">Location</div>
+          <div className="stat-card-label">{c("location", "Location")}</div>
           <div className="stat-card-value" style={{ fontSize: "var(--font-xl)" }}>
             {location || "—"}
           </div>
-          <div className="stat-card-sub">{location ? "Active farm region" : "Not set yet"}</div>
+          <div className="stat-card-sub">{location ? c("activeRegion", "Active farm region") : c("notSet", "Not set yet")}</div>
         </div>
 
         <div className="stat-card">
           <div className="stat-card-icon" style={{ background: "var(--clr-primary-light)" }}>🌾</div>
-          <div className="stat-card-label">Recommendations</div>
+          <div className="stat-card-label">{c("recommendations", "Recommendations")}</div>
           <div className="stat-card-value">{recCount}</div>
-          <div className="stat-card-sub">{recCount > 0 ? "Crop suggestions ready" : "None generated yet"}</div>
+          <div className="stat-card-sub">{recCount > 0 ? c("ready", "Crop suggestions ready") : c("noneGenerated", "None generated yet")}</div>
         </div>
 
         <div className="stat-card">
           <div className="stat-card-icon" style={{ background: "var(--clr-red-light)" }}>🔬</div>
-          <div className="stat-card-label">Disease Scan</div>
+          <div className="stat-card-label">{c("diseaseScan", "Disease Scan")}</div>
           <div className="stat-card-value" style={{ fontSize: "var(--font-xl)" }}>
             {hasDetect ? detectionResult.diagnosis : "—"}
           </div>
-          <div className="stat-card-sub">{hasDetect ? `${Math.round(detectionResult.confidence * 100)}% confidence` : "No scan done"}</div>
+          <div className="stat-card-sub">{hasDetect ? `${Math.round(detectionResult.confidence * 100)}% ${c("confidence", "confidence")}` : c("noScan", "No scan done")}</div>
         </div>
 
         <div className="stat-card">
           <div className="stat-card-icon" style={{ background: "var(--clr-amber-light)" }}>📅</div>
-          <div className="stat-card-label">Calendar Tasks</div>
+          <div className="stat-card-label">{c("calendarTasks", "Calendar Tasks")}</div>
           <div className="stat-card-value">{calCount}</div>
-          <div className="stat-card-sub">{calCount > 0 ? "Upcoming tasks" : "Calendar not loaded"}</div>
+          <div className="stat-card-sub">{calCount > 0 ? c("upcomingTasks", "Upcoming tasks") : c("calendarNotLoaded", "Calendar not loaded")}</div>
         </div>
       </div>
 
@@ -249,10 +265,10 @@ function DashboardSection({ location, recommendation, detectionResult, calendar,
               {getGreeting()}, Farmer 👋
             </p>
             <h2 style={{ fontSize: "var(--font-2xl)", fontWeight: 700, letterSpacing: "-0.02em", marginBottom: "var(--space-2)" }}>
-              Welcome to AgriN Connect
+              {c("welcome", "Welcome to AgriN Connect")}
             </h2>
             <p style={{ fontSize: "var(--font-sm)", opacity: 0.85, maxWidth: 460 }}>
-              Regenerative, explainable farm intelligence for smallholders — built for cooperation across BRICS nations.
+              {c("welcomeCopy", "Regenerative, explainable farm intelligence for smallholders — built for cooperation across BRICS nations.")}
             </p>
           </div>
           <div style={{ fontSize: "4rem", filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.2))" }}>🌿</div>
@@ -261,7 +277,7 @@ function DashboardSection({ location, recommendation, detectionResult, calendar,
 
       {/* Quick Actions */}
       <p style={{ fontSize: "var(--font-sm)", fontWeight: 600, color: "var(--clr-text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "var(--space-3)" }}>
-        Quick Actions
+        {c("quickActions", "Quick Actions")}
       </p>
       <div className="quick-actions">
         {quickActions.map((a) => (
@@ -986,7 +1002,8 @@ function CalendarSection({ calendar, loadingCalendar, fetchCalendar }) {
 /* ─────────────────────────────────────────────
    SECTION 6: Field Intelligence & Cooperation
 ──────────────────────────────────────────────*/
-function FieldIntelligenceSection({ location, soilType, water, intelligence, loading, loadIntelligence }) {
+function FieldIntelligenceSection({ location, soilType, water, intelligence, loading, loadIntelligence, language }) {
+  const c = (key, fallback) => contentFor(language, key, fallback);
   const payload = intelligence;
   const inputReady = soilType && water;
   return (
@@ -994,54 +1011,54 @@ function FieldIntelligenceSection({ location, soilType, water, intelligence, loa
       <div className="section-header">
         <h1 className="section-title">
           <span className="section-title-icon" style={{ background: "var(--clr-blue-light)" }}>🛰️</span>
-          Field Intelligence
+          {c("fieldTitle", "Field Intelligence")}
         </h1>
         <p className="section-description">
-          An explainable advisory layer that joins farm observations with satellite-compatible vegetation signals, soil health and forecast data.
+          {c("fieldDescription", "An explainable advisory layer that joins farm observations with satellite-compatible vegetation signals, soil health and forecast data.")}
         </p>
       </div>
 
       <div className="intelligence-hero card">
         <div>
-          <span className="eyebrow">AGRIN CONNECT • ADVISORY V1</span>
-          <h2>Turn shared data into locally useful, regenerative action.</h2>
-          <p>Signals are demo data in this prototype, but the contract is ready for national providers and consented cross-border model exchange.</p>
+          <span className="eyebrow">{c("advisoryVersion", "AGRIN CONNECT • ADVISORY V1")}</span>
+          <h2>{c("fieldHeroTitle", "Turn shared data into locally useful, regenerative action.")}</h2>
+          <p>{c("fieldHeroDescription", "Signals are demo data in this prototype, but the contract is ready for national providers and consented cross-border model exchange.")}</p>
         </div>
         <button className="btn btn-primary btn-lg" onClick={loadIntelligence} disabled={loading || !inputReady}>
-          {loading ? <><Spinner /> Reading signals…</> : "✨ Generate field brief"}
+          {loading ? <><Spinner /> {c("readingSignals", "Reading signals…")}</> : `✨ ${c("generateBrief", "Generate field brief")}`}
         </button>
       </div>
-      {!inputReady && <div className="alert alert-info" style={{ marginBottom: "var(--space-5)" }}>💡 Set soil type and water availability in <strong>Crops</strong> before generating a field brief.</div>}
+      {!inputReady && <div className="alert alert-info" style={{ marginBottom: "var(--space-5)" }}>💡 {c("setConditions", "Set soil type and water availability in Crops before generating a field brief.")}</div>}
 
       {loading ? (
         <div className="signal-grid"><SkeletonCard height={170} /><SkeletonCard height={170} /><SkeletonCard height={170} /></div>
       ) : payload ? (
         <div className="animate-fadeIn">
           <div className="signal-grid">
-            <article className="signal-card satellite"><span>🛰️</span><p>Vegetation health</p><strong>NDVI {payload.satellite.ndvi}</strong><small>{payload.satellite.trend} · {payload.satellite.source}</small></article>
-            <article className="signal-card soil"><span>🪨</span><p>Soil health</p><strong>pH {payload.soil.ph} · {payload.soil.moisture_percent}%</strong><small>{payload.soil.organic_carbon_percent}% organic carbon · {payload.soil.texture}</small></article>
-            <article className="signal-card weather"><span>🌦️</span><p>7-day outlook</p><strong>{payload.weather.rainfall_next_7_days_mm} mm rain · {payload.weather.max_temperature_c}°C</strong><small>Water risk: {payload.weather.risk} · forecast-compatible</small></article>
+            <article className="signal-card satellite"><span>🛰️</span><p>{c("vegetationHealth", "Vegetation health")}</p><strong>NDVI {payload.satellite.ndvi}</strong><small>{payload.satellite.trend} · {payload.satellite.source}</small></article>
+            <article className="signal-card soil"><span>🪨</span><p>{c("soilHealth", "Soil health")}</p><strong>pH {payload.soil.ph} · {payload.soil.moisture_percent}%</strong><small>{payload.soil.organic_carbon_percent}% {c("organicCarbon", "organic carbon")} · {payload.soil.texture}</small></article>
+            <article className="signal-card weather"><span>🌦️</span><p>{c("outlook", "7-day outlook")}</p><strong>{payload.weather.rainfall_next_7_days_mm} mm rain · {payload.weather.max_temperature_c}°C</strong><small>{c("waterRisk", "Water risk")}: {payload.weather.risk} · forecast-compatible</small></article>
           </div>
 
           <div className="advisory-grid">
             <div className="card advisory-card">
-              <span className="eyebrow">EXPLAINABLE ADVISORY · {Math.round(payload.advisory.confidence * 100)}% CONFIDENCE</span>
+              <span className="eyebrow">{c("explainableAdvisory", "EXPLAINABLE ADVISORY")} · {Math.round(payload.advisory.confidence * 100)}% {c("confidence", "CONFIDENCE")}</span>
               <h2>{payload.advisory.headline}</h2>
               <div className="action-list">
                 {payload.advisory.actions.map((item) => <div className="action-item" key={item.action}><span>🌱</span><div><strong>{item.action}</strong><p>{item.why}</p><small>{item.impact}</small></div></div>)}
               </div>
             </div>
             <div className="card cooperation-card">
-              <span className="eyebrow">BRICS COOPERATION BY DESIGN</span>
-              <h3>Portable, consent-led data exchange</h3>
-              <p>Farm location stays local. Partners can share only consented, aggregated indicators and reusable advisory models.</p>
-              <div className="cooperation-tags"><span>Farmer consent</span><span>Local sovereignty</span><span>Open contract</span><span>Model provenance</span></div>
-              <small>Standard: {payload.provenance.standard}</small>
+              <span className="eyebrow">{c("cooperation", "BRICS COOPERATION BY DESIGN")}</span>
+              <h3>{c("portableData", "Portable, consent-led data exchange")}</h3>
+              <p>{c("cooperationCopy", "Farm location stays local. Partners can share only consented, aggregated indicators and reusable advisory models.")}</p>
+              <div className="cooperation-tags"><span>{c("farmerConsent", "Farmer consent")}</span><span>{c("localSovereignty", "Local sovereignty")}</span><span>{c("openContract", "Open contract")}</span><span>{c("modelProvenance", "Model provenance")}</span></div>
+              <small>{c("standard", "Standard")}: {payload.provenance.standard}</small>
             </div>
           </div>
         </div>
       ) : (
-        <div className="card"><EmptyState icon="🛰️" title="Your field brief is ready to generate" desc="Use the farm conditions already entered in the crop advisor to create an explainable regenerative advisory." action={loadIntelligence} actionLabel="Generate field brief" /></div>
+        <div className="card"><EmptyState icon="🛰️" title={c("fieldReady", "Your field brief is ready to generate")} desc={c("fieldReadyCopy", "Use the farm conditions already entered in the crop advisor to create an explainable regenerative advisory.")} action={loadIntelligence} actionLabel={c("generateBrief", "Generate field brief")} /></div>
       )}
     </div>
   );
@@ -1206,6 +1223,7 @@ export default function UnifiedAgriAgentFrontend() {
             detectionResult={detectionResult}
             calendar={calendar}
             setActiveSection={setActiveSection}
+            language={language}
           />
         );
       case "crop":
@@ -1222,7 +1240,7 @@ export default function UnifiedAgriAgentFrontend() {
           />
         );
       case "intelligence":
-        return <FieldIntelligenceSection location={location} soilType={soilType} water={water} intelligence={intelligence} loading={loadingIntelligence} loadIntelligence={loadIntelligence} />;
+        return <FieldIntelligenceSection location={location} soilType={soilType} water={water} intelligence={intelligence} loading={loadingIntelligence} loadIntelligence={loadIntelligence} language={language} />;
       case "disease":
         return (
           <DiseaseSection
@@ -1257,7 +1275,7 @@ export default function UnifiedAgriAgentFrontend() {
   };
 
   return (
-    <div className={`app-shell ${theme === "dark" ? "theme-dark" : "theme-light"}`}>
+    <div className={`app-shell ${theme === "dark" ? "theme-dark" : "theme-light"}`} lang={language}>
       {/* ── Sidebar ── */}
       <aside className="sidebar">
         {/* Logo */}

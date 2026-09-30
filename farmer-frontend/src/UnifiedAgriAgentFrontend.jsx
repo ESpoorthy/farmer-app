@@ -11,10 +11,40 @@ const PROFILES = [
   { id: "cooperative", name: "Green Roots Co-op", role: "Cooperative view", initial: "G", accent: "#0f766e" },
 ];
 
+const DEFAULT_COPY = { overview: "Overview", field: "Field Intel", crops: "Crops", disease: "Disease", market: "Market", calendar: "Calendar", navigation: "Navigation", resilience: "Local intelligence, built for shared climate resilience.", settings: "Settings", appearance: "Appearance", language: "Dashboard language", profile: "Profile", light: "Day mode", dark: "Dark mode", manage: "Profile & preferences" };
+
+// India-facing language support: every Eighth Schedule language is selectable.
+// Untranslated page-specific advisory content remains in the source language, while
+// the app chrome, navigation and preferences always switch to the chosen language.
+const INDIAN_LANGUAGES = [
+  ["as", "অসমীয়া", { overview: "অৱলোকন", field: "ক্ষেত্ৰ তথ্য", crops: "শস্য", disease: "ৰোগ", market: "বজাৰ", calendar: "কেলেণ্ডাৰ", navigation: "নেভিগেচন", settings: "ছেটিংছ", language: "ডেছব'ৰ্ড ভাষা", profile: "প্ৰ'ফাইল", light: "দিনৰ মোড", dark: "ডাৰ্ক মোড" }],
+  ["bn", "বাংলা", { overview: "সংক্ষিপ্ত বিবরণ", field: "ক্ষেত্র তথ্য", crops: "ফসল", disease: "রোগ", market: "বাজার", calendar: "ক্যালেন্ডার", navigation: "নেভিগেশন", settings: "সেটিংস", language: "ড্যাশবোর্ডের ভাষা", profile: "প্রোফাইল", light: "দিনের মোড", dark: "ডার্ক মোড" }],
+  ["brx", "बड़ो", { overview: "निरीक्षण", field: "पाथार मोजां", crops: "फसल", disease: "रोग", market: "बाजार", calendar: "केलेण्डार", navigation: "नेभिगेसन", settings: "सेटिंस", language: "डेसबर्ड राव", profile: "प्रफाइल", light: "सानि मड", dark: "गोसोम मड" }],
+  ["doi", "डोगरी", { overview: "झलक", field: "खेत्तर जानकारी", crops: "फसलां", disease: "बमारी", market: "बजार", calendar: "कैलेंडर", navigation: "नेविगेशन", settings: "सैटिंगां", language: "डैशबोर्ड भाशा", profile: "प्रोफाइल", light: "दिन मोड", dark: "डार्क मोड" }],
+  ["gu", "ગુજરાતી", { overview: "ઝાંખી", field: "ક્ષેત્ર માહિતી", crops: "પાક", disease: "રોગ", market: "બજાર", calendar: "કૅલેન્ડર", navigation: "નેવિગેશન", settings: "સેટિંગ્સ", language: "ડેશબોર્ડ ભાષા", profile: "પ્રોફાઇલ", light: "દિવસ મોડ", dark: "ડાર્ક મોડ" }],
+  ["hi", "हिन्दी", { overview: "अवलोकन", field: "फील्ड इंटेल", crops: "फसलें", disease: "रोग", market: "बाज़ार", calendar: "कैलेंडर", navigation: "नेविगेशन", resilience: "साझा जलवायु लचीलेपन के लिए स्थानीय बुद्धिमत्ता।", settings: "सेटिंग्स", appearance: "रूप", language: "डैशबोर्ड भाषा", profile: "प्रोफ़ाइल", light: "डे मोड", dark: "डार्क मोड", manage: "प्रोफ़ाइल और प्राथमिकताएँ" }],
+  ["kn", "ಕನ್ನಡ", { overview: "ಅವಲೋಕನ", field: "ಕ್ಷೇತ್ರ ಮಾಹಿತಿ", crops: "ಬೆಳೆಗಳು", disease: "ರೋಗ", market: "ಮಾರುಕಟ್ಟೆ", calendar: "ಕ್ಯಾಲೆಂಡರ್", navigation: "ನ್ಯಾವಿಗೇಶನ್", settings: "ಸೆಟ್ಟಿಂಗ್‌ಗಳು", language: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಭಾಷೆ", profile: "ಪ್ರೊಫೈಲ್", light: "ಹಗಲು ಮೋಡ್", dark: "ಡಾರ್ಕ್ ಮೋಡ್" }],
+  ["ks", "कॉशुर", { overview: "جائزہ", field: "کھیت معلومات", crops: "فصل", disease: "بیماری", market: "بازار", calendar: "کیلنڈر", navigation: "نیویگیشن", settings: "ترتیبات", language: "ڈیش بورڈ زبان", profile: "پروفائل", light: "دن موڈ", dark: "ڈارک موڈ" }],
+  ["kok", "कोंकणी", { overview: "आढावो", field: "शेत माहिती", crops: "पिकां", disease: "रोग", market: "बजार", calendar: "कॅलेंडर", navigation: "नेव्हिगेशन", settings: "सेटिंगां", language: "डॅशबोर्ड भास", profile: "प्रोफायल", light: "दीस मोड", dark: "डार्क मोड" }],
+  ["mai", "मैथिली", { overview: "अवलोकन", field: "खेत जानकारी", crops: "फसल", disease: "रोग", market: "बजार", calendar: "कैलेंडर", navigation: "नेविगेशन", settings: "सेटिंग्स", language: "डैशबोर्ड भाषा", profile: "प्रोफाइल", light: "दिन मोड", dark: "डार्क मोड" }],
+  ["ml", "മലയാളം", { overview: "അവലോകനം", field: "വയൽ വിവരം", crops: "വിളകൾ", disease: "രോഗം", market: "വിപണി", calendar: "കലണ്ടർ", navigation: "നാവിഗേഷൻ", settings: "ക്രമീകരണങ്ങൾ", language: "ഡാഷ്ബോർഡ് ഭാഷ", profile: "പ്രൊഫൈൽ", light: "ഡേ മോഡ്", dark: "ഡാർക്ക് മോഡ്" }],
+  ["mni", "ꯃꯤꯇꯩꯂꯣꯟ", { overview: "ꯋꯥꯔꯣꯜ", field: "ꯂꯝ ꯃꯔꯣꯜ", crops: "ꯃꯔꯣꯏ", disease: "ꯂꯥꯏꯅꯤꯡ", market: "ꯀꯦꯏꯁꯝ", calendar: "ꯀꯦꯂꯦꯟꯗꯔ", navigation: "ꯂꯝꯆꯠ", settings: "ꯁꯦꯇꯤꯡꯁ", language: "ꯗꯦꯁꯕꯣꯔꯗ ꯂꯣꯜ", profile: "ꯄ꯭ꯔꯣꯐꯥꯏꯜ", light: "ꯅꯨꯡꯁꯤ ꯃꯣꯗ", dark: "ꯗꯥꯔꯛ ꯃꯣꯗ" }],
+  ["mr", "मराठी", { overview: "आढावा", field: "शेत माहिती", crops: "पिके", disease: "रोग", market: "बाजार", calendar: "दिनदर्शिका", navigation: "नेव्हिगेशन", settings: "सेटिंग्ज", language: "डॅशबोर्ड भाषा", profile: "प्रोफाइल", light: "डे मोड", dark: "डार्क मोड" }],
+  ["ne", "नेपाली", { overview: "सिंहावलोकन", field: "खेत जानकारी", crops: "बाली", disease: "रोग", market: "बजार", calendar: "पात्रो", navigation: "नेभिगेसन", settings: "सेटिङहरू", language: "ड्यासबोर्ड भाषा", profile: "प्रोफाइल", light: "दिन मोड", dark: "डार्क मोड" }],
+  ["or", "ଓଡ଼ିଆ", { overview: "ସମୀକ୍ଷା", field: "କ୍ଷେତ୍ର ସୂଚନା", crops: "ଫସଲ", disease: "ରୋଗ", market: "ବଜାର", calendar: "କ୍ୟାଲେଣ୍ଡର", navigation: "ନାଭିଗେସନ", settings: "ସେଟିଂସ", language: "ଡ୍ୟାସବୋର୍ଡ ଭାଷା", profile: "ପ୍ରୋଫାଇଲ", light: "ଦିନ ମୋଡ", dark: "ଡାର୍କ ମୋଡ" }],
+  ["pa", "ਪੰਜਾਬੀ", { overview: "ਸੰਖੇਪ", field: "ਖੇਤ ਜਾਣਕਾਰੀ", crops: "ਫਸਲਾਂ", disease: "ਬਿਮਾਰੀ", market: "ਬਾਜ਼ਾਰ", calendar: "ਕੈਲੰਡਰ", navigation: "ਨੇਵੀਗੇਸ਼ਨ", settings: "ਸੈਟਿੰਗਾਂ", language: "ਡੈਸ਼ਬੋਰਡ ਭਾਸ਼ਾ", profile: "ਪ੍ਰੋਫਾਈਲ", light: "ਦਿਨ ਮੋਡ", dark: "ਡਾਰਕ ਮੋਡ" }],
+  ["sa", "संस्कृतम्", { overview: "अवलोकनम्", field: "क्षेत्रसूचना", crops: "सस्यानि", disease: "रोगः", market: "विपणिः", calendar: "दिनदर्शिका", navigation: "मार्गदर्शनम्", settings: "विन्यासाः", language: "डैशबोर्डभाषा", profile: "परिचयः", light: "दिनविधिः", dark: "तमोविधिः" }],
+  ["sat", "ᱥᱟᱱᱛᱟᱲᱤ", { overview: "ᱧᱩᱲᱩᱜ", field: "ᱯᱷᱟᱨᱤᱡ ᱛᱟᱛᱟ", crops: "ᱪᱟᱥ", disease: "ᱨᱳᱜ", market: "ᱦᱟᱴ", calendar: "ᱠᱮᱞᱮᱱᱰᱟᱨ", navigation: "ᱧᱮᱞ ᱦᱚᱨ", settings: "ᱥᱮᱴᱤᱝᱥ", language: "ᱰᱮᱥᱵᱳᱨᱰ ᱯᱟᱹᱨᱥᱤ", profile: "ᱯᱨᱚᱯᱷᱟᱭᱤᱞ", light: "ᱢᱟᱨᱥᱟᱞ ᱢᱳᱰ", dark: "ᱫᱷᱤᱨᱤ ᱢᱳᱰ" }],
+  ["sd", "سنڌي", { overview: "جائزو", field: "زمين ڄاڻ", crops: "فصل", disease: "بيماري", market: "بازار", calendar: "ڪئلينڊر", navigation: "نيويگيشن", settings: "سيٽنگون", language: "ڊيش بورڊ ٻولي", profile: "پروفائل", light: "ڏينهن موڊ", dark: "ڊارڪ موڊ" }],
+  ["ta", "தமிழ்", { overview: "கண்ணோட்டம்", field: "வயல் தகவல்", crops: "பயிர்கள்", disease: "நோய்", market: "சந்தை", calendar: "நாட்காட்டி", navigation: "வழிசெலுத்தல்", settings: "அமைப்புகள்", language: "டாஷ்போர்டு மொழி", profile: "சுயவிவரம்", light: "பகல் முறை", dark: "இருண்ட முறை" }],
+  ["te", "తెలుగు", { overview: "అవలోకనం", field: "క్షేత్ర సమాచారం", crops: "పంటలు", disease: "వ్యాధి", market: "మార్కెట్", calendar: "క్యాలెండర్", navigation: "నావిగేషన్", settings: "సెట్టింగ్‌లు", language: "డాష్‌బోర్డ్ భాష", profile: "ప్రొఫైల్", light: "పగటి మోడ్", dark: "డార్క్ మోడ్" }],
+  ["ur", "اردو", { overview: "جائزہ", field: "کھیت معلومات", crops: "فصلیں", disease: "بیماری", market: "بازار", calendar: "کیلنڈر", navigation: "نیویگیشن", settings: "ترتیبات", language: "ڈیش بورڈ زبان", profile: "پروفائل", light: "دن موڈ", dark: "ڈارک موڈ" }],
+];
+
 const COPY = {
-  en: { overview: "Overview", field: "Field Intel", crops: "Crops", disease: "Disease", market: "Market", calendar: "Calendar", navigation: "Navigation", resilience: "Local intelligence, built for shared climate resilience.", settings: "Settings", appearance: "Appearance", language: "Dashboard language", profile: "Profile", light: "Day mode", dark: "Dark mode", manage: "Profile & preferences" },
-  hi: { overview: "अवलोकन", field: "फील्ड इंटेल", crops: "फसलें", disease: "रोग", market: "बाज़ार", calendar: "कैलेंडर", navigation: "नेविगेशन", resilience: "साझा जलवायु लचीलेपन के लिए स्थानीय बुद्धिमत्ता।", settings: "सेटिंग्स", appearance: "रूप", language: "डैशबोर्ड भाषा", profile: "प्रोफ़ाइल", light: "डे मोड", dark: "डार्क मोड", manage: "प्रोफ़ाइल और प्राथमिकताएँ" },
-  pt: { overview: "Visão geral", field: "Inteligência de campo", crops: "Culturas", disease: "Doenças", market: "Mercado", calendar: "Calendário", navigation: "Navegação", resilience: "Inteligência local para resiliência climática compartilhada.", settings: "Configurações", appearance: "Aparência", language: "Idioma do painel", profile: "Perfil", light: "Modo claro", dark: "Modo escuro", manage: "Perfil e preferências" },
+  en: DEFAULT_COPY,
+  pt: { ...DEFAULT_COPY, overview: "Visão geral", field: "Inteligência de campo", crops: "Culturas", disease: "Doenças", market: "Mercado", calendar: "Calendário", navigation: "Navegação", resilience: "Inteligência local para resiliência climática compartilhada.", settings: "Configurações", appearance: "Aparência", language: "Idioma do painel", profile: "Perfil", light: "Modo claro", dark: "Modo escuro", manage: "Perfil e preferências" },
+  ...Object.fromEntries(INDIAN_LANGUAGES.map(([code, _name, copy]) => [code, { ...DEFAULT_COPY, ...copy }])),
 };
 
 /* ─────────────────────────────────────────────
@@ -1316,7 +1346,13 @@ export default function UnifiedAgriAgentFrontend() {
                 </div>
                 <label className="settings-label" htmlFor="dashboard-language">{t.language}</label>
                 <select id="dashboard-language" className="settings-select" value={language} onChange={(event) => setLanguage(event.target.value)}>
-                  <option value="en">English</option><option value="hi">हिन्दी</option><option value="pt">Português</option>
+                  <option value="en">English</option>
+                  <optgroup label="Indian languages">
+                    {INDIAN_LANGUAGES.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
+                  </optgroup>
+                  <optgroup label="BRICS languages">
+                    <option value="pt">Português</option>
+                  </optgroup>
                 </select>
                 <div className="appearance-row"><span>{t.appearance}</span><button className="appearance-toggle" onClick={() => setTheme(theme === "light" ? "dark" : "light")}><span className={theme === "light" ? "selected" : ""}>☀ {t.light}</span><span className={theme === "dark" ? "selected" : ""}>☾ {t.dark}</span></button></div>
               </div>
